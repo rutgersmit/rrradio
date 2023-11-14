@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Rrradio</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nabla">
-    <title>Rrradio</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 	<div class="background-overlay"></div>
@@ -21,7 +25,6 @@
         </div>
 
         <ul id="station-list">
-            <!-- Add radio station entries here -->
             <li class="station-entry" onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64', 'img/npo-radio-1.svg')">
                 <img class="station-image" src="img/npo-radio-1.svg" alt="NPO Radio 1">
                 NPO Radio 1
@@ -42,6 +45,7 @@
 
         <div id="song-info"></div>
     </div>
+
     <script>
         var radio = new Audio();
         radio.volume = 0.5; // Initial volume
