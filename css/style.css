@@ -1,0 +1,123 @@
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: url("img/bg.png") center/cover no-repeat fixed;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  /* Adjust the alpha transparency here */
+  z-index: -1;
+  /* Place the overlay behind other content */
+}
+
+h1 {
+  font-family: "Nabla", cursive;
+  font-size: 80px;
+  color: #333;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
+#radio-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  /* Adjust the opacity of the container */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#radio-logo {
+  cursor: pointer;
+  width: 100px;
+  height: auto;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease-in-out;
+}
+
+#radio-logo:hover {
+  transform: scale(1.1);
+}
+
+#controls {
+  display: flex;
+  flex-direction: row;
+  /* Adjusted to keep buttons on the same row */
+  align-items: center;
+  justify-content: center;
+  /* Added to center the buttons horizontally */
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: #336699;
+  color: white;
+  border: none;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  /* Adjusted to support varying logo dimensions */
+  align-items: center;
+  /* Adjusted to support varying logo dimensions */
+  font-size: 16px;
+  margin-right: 10px;
+  /* Added margin between buttons */
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#volume-slider {
+  width: 150px;
+  margin-bottom: 10px;
+  /* Added margin between buttons and slider */
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.station-entry {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.station-entry:hover {
+  background-color: #ccc;
+}
+
+.station-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+#song-info {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
