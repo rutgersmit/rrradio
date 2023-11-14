@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Information</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nabla" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icon-apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16.png" />
+    <link rel="manifest" href="manifest.json" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            width: 60%;
+        }
+
+        li {
+            margin-bottom: 5px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-button, .edit-button {
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 5px;
+            margin-top: 0;
+        }
+
+        label {
+            margin-bottom: 5px;
+            margin-right: 10px;
+        }
+
+        input {
+            width: 300px;
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div id="radio-container">
+        <h1>Rrradio</h1>
+
+        <h2>Add new station</h2>
+
+        <!-- Save Form -->
+        <label for="name">Name:</label>
+        <input type="text" id="name">
+
+        <label for="image-url">Image URL:</label>
+        <input type="text" id="image-url">
+
+        <label for="stream-url">Stream URL:</label>
+        <input type="text" id="stream-url">
+
+        <button onclick="saveInformation()">Save</button>
+    </div>
+    <hr>
+
+    <!-- Saved List -->
+    <h2>Saved Information List</h2>
+
+    <ul id="saved-list"></ul>
+
+    <!-- Edit Form -->
+    <div id="edit-form" class="edit-form">
+        <h3>Edit Information</h3>
+        <label for="edit-image-url">Image URL:</label>
+        <input type="text" id="edit-image-url">
+
+        <label for="edit-stream-url">Stream URL:</label>
+        <input type="text" id="edit-stream-url">
+
+        <label for="edit-name">Name:</label>
+        <input type="text" id="edit-name">
+
+        <button onclick="saveEdit()">💾 Save Changes</button>
+    </div>
+
+    <script>
+        // Save Information Function
+        function saveInformation() {
+            // Get values from input fields
+            var imageUrl = document.getElementById('image-url').value;
+            var streamUrl = document.getElementById('stream-url').value;
+            var name = document.getElementById('name').value;
+
+            // Check if all fields are filled
+            if (imageUrl && streamUrl && name) {
+                // Create an object to store the information
+                var savedInfo = {
+                    imageUrl: imageUrl,
+                    streamUrl: streamUrl,
+                    name: name
+                };
+
+                // Retrieve the existing saved information array from local storage
+                var savedInfoArray = JSON.parse(localStorage.getItem('savedInfoArray')) || [];
+
+                // Add the new information to the array
+                savedInfoArray.push(savedInfo);
+
+                // Convert the array to a JSON string and store it in local storage
+                localStorage.setItem('savedInfoArray', JSON.stringify(savedInfoArray));
+
+                alert('Information saved successfully!');
+                // Clear the form fields after saving
+                document.getElementById('image-url').value = '';
+                document.getElementById('stream-url').value = '';
+                document.getElementById('name').value = '';
+
+                // Refresh the saved list
+                displaySavedList();
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        // Display Saved List Function
+        function displaySavedList() {
+            // Retrieve saved information array from local storage
+            var savedInfoArray = JSON.parse(localStorage.getItem('savedInfoArray')) || [];
+
+            // Display the saved information as a list
+            var savedList = document.getElementById('saved-list');
+            savedList.innerHTML = ''; // Clear the existing list
+
+            if (savedInfoArray.length > 0) {
+                savedInfoArray.forEach(function (savedInfo, index) {
+                    var listItem = document.createElement('li');
+
+                    var image = document.createElement('img');
+                    image.src = savedInfo.imageUrl;
+                    image.alt = 'Saved Image';
+                    image.style.width = '50px';
+                    image.style.height = '50px';
+                    listItem.appendChild(image);
+
+                    var name = document.createElement('p');
+                    name.textContent = savedInfo.name;
+                    listItem.appendChild(name);
+
+                    var buttonsContainer = document.createElement('div');
+                    buttonsContainer.style.display = 'flex';
+
+                    var editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.className = 'edit-button';
+                    editButton.onclick = function () {
+                        showEditForm(savedInfo, index);
+                    };
+
+                    buttonsContainer.appendChild(editButton);
+
+                    var deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.className = 'delete-button';
+                    deleteButton.onclick = function () {
+                        deleteItem(index);
+                    };
+
+                    buttonsContainer.appendChild(deleteButton);
+
+                    listItem.appendChild(buttonsContainer);
+
+                    savedList.appendChild(listItem);
+                });
+            } else {
+                // Display a message if no information is saved
+                var noInfoMessage = document.createElement('p');
+                noInfoMessage.textContent = 'No information saved.';
+                savedList.appendChild(noInfoMessage);
+            }
+        }
+
+        // Delete Item Function
+        function deleteItem(index) {
+            var savedInfoArray = JSON.parse(localStorage.getItem('savedInfoArray')) || [];
+
+            // Remove the item at the specified index
+            savedInfoArray.splice(index, 1);
+
+            // Update local storage
+            localStorage.setItem('savedInfoArray', JSON.stringify(savedInfoArray));
+
+            // Refresh the saved list
+            displaySavedList();
+        }
+
+        // Show Edit Form Function
+        function showEditForm(savedInfo, index) {
+            // Display the edit form
+            var editForm = document.getElementById('edit-form');
+            editForm.style.display = 'block';
+
+            // Populate the edit form with current information
+            document.getElementById('edit-image-url').value = savedInfo.imageUrl;
+            document.getElementById('edit-stream-url').value = savedInfo.streamUrl;
+            document.getElementById('edit-name').value = savedInfo.name;
+
+            // Set up a function to save edits
+            window.saveEdit = function () {
+                saveEdit(index);
+            };
+        }
+
+        // Save Edit Function
+        function saveEdit(index) {
+            // Get values from edit form fields
+            var imageUrl = document.getElementById('edit-image-url').value;
+            var streamUrl = document.getElementById('edit-stream-url').value;
+            var name = document.getElementById('edit-name').value;
+
+            // Check if all fields are filled
+            if (imageUrl && streamUrl && name) {
+                // Retrieve the existing saved information array from local storage
+                var savedInfoArray = JSON.parse(localStorage.getItem('savedInfoArray')) || [];
+
+                // Update the information at the specified index
+                savedInfoArray[index].imageUrl = imageUrl;
+                savedInfoArray[index].streamUrl = streamUrl;
+                savedInfoArray[index].name = name;
+
+                // Convert the array to a JSON string and store it in local storage
+                localStorage.setItem('savedInfoArray', JSON.stringify(savedInfoArray));
+
+                alert('Changes saved successfully!');
+                // Hide the edit form
+                document.getElementById('edit-form').style.display = 'none';
+
+                // Refresh the saved list
+                displaySavedList();
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        // Initial display of saved list
+        displaySavedList();
+    </script>
+
+</body>
+</html>
