@@ -1,102 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Rrradio</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nabla">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/icon-apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16.png">
-    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nabla" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icon-apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16.png" />
+    <link rel="manifest" href="manifest.json" />
 </head>
+
 <body>
-	<div class="background-overlay"></div>
+    <div class="background-overlay"></div>
     <div id="radio-container">
         <h1>Rrradio</h1>
 
         <img id="radio-logo" src="img/logo.png" alt="Rrradio Logo" onclick="toggleRadio()" />
 
         <div id="controls">
-            <button id="start-stop-button" onclick="toggleStartStop()" style="display: none;">Start</button>
+            <button id="start-stop-button" onclick="toggleStartStop()" style="display: none">
+                Start
+            </button>
             <button id="mute-button" onclick="toggleMute()">🔊</button><br />
-            <input id="volume-slider" type="range" min="0" max="100" value="50" oninput="setVolume()">
+            <input id="volume-slider" type="range" min="0" max="100" value="50" oninput="setVolume()" />
         </div>
 
         <ul id="station-list">
-            <li class="station-entry" onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64', 'img/npo-radio-1.svg')">
-                <img class="station-image" src="img/npo-radio-1.svg" alt="NPO Radio 1">
+            <li class="station-entry"
+                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64', 'img/npo-radio-1.svg')">
+                <img class="station-image" src="img/npo-radio-1.svg" alt="NPO Radio 1" />
                 NPO Radio 1
             </li>
-            <li class="station-entry" onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2/stream/3-aac-64', 'img/npo-radio-2.svg')">
-                <img class="station-image" src="img/npo-radio-2.svg" alt="NPO Radio 2">
+            <li class="station-entry"
+                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2/stream/3-aac-64', 'img/npo-radio-2.svg')">
+                <img class="station-image" src="img/npo-radio-2.svg" alt="NPO Radio 2" />
                 NPO Radio 2
             </li>
-            <li class="station-entry" onclick="playStation('https://www.mp3streams.nl/zender/kink/stream/19-aac-128', 'img/kink.svg')">
-                <img class="station-image" src="img/kink.svg" alt="Kink">
+            <li class="station-entry"
+                onclick="playStation('https://www.mp3streams.nl/zender/kink/stream/19-aac-128', 'img/kink.svg')">
+                <img class="station-image" src="img/kink.svg" alt="Kink" />
                 Kink
             </li>
-            <li class="station-entry" onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/44-mp3-192', 'img/npo-radio-2-soul-jazz.png')">
-                <img class="station-image" src="img/npo-radio-2-soul-jazz.png" alt="NPO Soul & Jazz">
+            <li class="station-entry"
+                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/44-mp3-192', 'img/npo-radio-2-soul-jazz.png')">
+                <img class="station-image" src="img/npo-radio-2-soul-jazz.png" alt="NPO Soul & Jazz" />
                 NPO Soul & Jazz
             </li>
         </ul>
 
         <div id="song-info"></div>
+        <button id="install-button" style="display: none">Install App</button>
     </div>
 
-    <script>
-        var radio = new Audio();
-        radio.volume = 0.5; // Initial volume
-        var isMuted = false;
-        var isPlaying = false;
-
-        function toggleRadio() {
-            if (isPlaying) {
-                radio.pause();
-                isPlaying = false;
-                document.getElementById('start-stop-button').innerText = '▶️';
-            } else {
-                radio.play();
-                isPlaying = true;
-                document.getElementById('start-stop-button').innerText = '⏹️';
-            }
-        }
-
-        function toggleMute() {
-            isMuted = !isMuted;
-            if (isMuted) {
-                document.getElementById('mute-button').innerText = '🔊';
-            } else {
-                document.getElementById('mute-button').innerText = '🔇';
-            }
-            radio.muted = isMuted;
-        }
-
-        function toggleStartStop() {
-            toggleRadio();
-        }
-
-        function setVolume() {
-            radio.volume = document.getElementById('volume-slider').value / 100;
-        }
-
-        function playStation(stationUrl, stationImage) {
-            radio.src = stationUrl;
-            radio.play();
-            document.getElementById('start-stop-button').innerText = '⏹️';
-            document.getElementById('start-stop-button').style.display = 'inline-block';
-            document.getElementById('radio-logo').src = stationImage;
-
-            // Display song information when available
-            radio.addEventListener('loadedmetadata', function () {
-                if (radio.title !== undefined) {
-                    document.getElementById('song-info').innerText = 'Now Playing: ' + radio.title;
-                }
-            });
-        }
-    </script>
-
+    <script src="js/script.js"></script>
 </body>
 </html>

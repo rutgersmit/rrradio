@@ -48,7 +48,7 @@ h1 {
 }
 
 #radio-logo:hover {
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
 #controls {
@@ -75,6 +75,11 @@ button {
   border-radius: 5px;
 }
 
+button:hover {
+  background-color: #4e85bb;
+  transform: scale(1.1);
+}
+
 #volume-slider {
   width: 100px;
   margin-bottom: 10px;
@@ -96,7 +101,7 @@ input[type="range"] {
 }
 
 input[type="range"]:hover {
-  background: #2f8ba0;
+  background: #4e85bb;
 }
 
 /* Styling for the thumb when the user interacts with it */
@@ -139,6 +144,7 @@ ul {
 
 .station-entry:hover {
   background-color: #ccc;
+  transform: scale(1.05);
 }
 
 .station-image {
