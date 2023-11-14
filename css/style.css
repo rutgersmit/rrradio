@@ -17,9 +17,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.8);
-  /* Adjust the alpha transparency here */
   z-index: -1;
-  /* Place the overlay behind other content */
 }
 
 h1 {
@@ -56,15 +54,13 @@ h1 {
 #controls {
   display: flex;
   flex-direction: row;
-  /* Adjusted to keep buttons on the same row */
   align-items: center;
   justify-content: center;
-  /* Added to center the buttons horizontally */
   margin-bottom: 20px;
 }
 
 button {
-  background-color: #336699;
+  background-color: #62a0df;
   color: white;
   border: none;
   padding: 10px;
@@ -72,30 +68,66 @@ button {
   text-decoration: none;
   display: flex;
   flex-direction: column;
-  /* Adjusted to support varying logo dimensions */
   align-items: center;
-  /* Adjusted to support varying logo dimensions */
   font-size: 16px;
   margin-right: 10px;
-  /* Added margin between buttons */
   cursor: pointer;
   border-radius: 5px;
 }
 
 #volume-slider {
-  width: 150px;
+  width: 100px;
   margin-bottom: 10px;
-  /* Added margin between buttons and slider */
+}
+
+/* Styles for the range input */
+input[type="range"] {
+  -webkit-appearance: none;
+  -moz-apperance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  background: #62a0df;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+input[type="range"]:hover {
+  background: #2f8ba0;
+}
+
+/* Styling for the thumb when the user interacts with it */
+input[type="range"]::-webkit-slider-thumb {
+  /* Styling for WebKit browsers (Chrome, Safari) */
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #62a0df;
+  cursor: pointer;
+}
+
+/* Styling for the thumb when the user interacts with it */
+input[type="range"]::-moz-range-thumb {
+  /* Styling for Firefox */
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #62a0df;
+  cursor: pointer;
 }
 
 ul {
   list-style: none;
   padding: 0;
-  text-align: left;
 }
 
 .station-entry {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
   background-color: #ddd;
