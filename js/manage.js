@@ -22,6 +22,17 @@ document.addEventListener("DOMContentLoaded", function () {
       saveStation();
     });
 
+  var editMode = null;
+
+  window.editStation = function (index) {
+    editMode = index;
+    var station = stationList[index];
+
+    stationNameInput.value = station.name;
+    stationImageUrlInput.value = station.imageUrl;
+    stationStreamUrlInput.value = station.streamUrl;
+  };
+
   window.saveStation = function () {
     var stationName = stationNameInput.value;
     var stationImageUrl = stationImageUrlInput.value;
@@ -54,13 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  window.editStation = function (index) {
-    editMode = index;
-    var station = stationList[index];
-
-    stationNameInput.value = station.name;
-    stationImageUrlInput.value = station.imageUrl;
-    stationStreamUrlInput.value = station.streamUrl;
+  window.deleteStation = function (index) {
+    stationList.splice(index, 1);
+    displayStationList();
+    saveToLocalStorage();
   };
 
   window.confirmDelete = function (index) {
@@ -73,27 +81,59 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  var editMode = null;
-
   function clearStationForm() {
     stationNameInput.value = "";
     stationImageUrlInput.value = "";
     stationStreamUrlInput.value = "";
   }
 
+  // Function to create a tooltip element
+  function createTooltip(stationName) {
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("tooltip");
+    tooltip.textContent = stationName;
+    return tooltip;
+  }
+
   function displayStationList() {
     stationListContainer.innerHTML = "";
 
     if (stationList.length > 0) {
-      stationList.forEach(function (station, index) {
-        var listItem = document.createElement("li");
-        listItem.innerHTML = `
-                    <img src="${station.imageUrl}" alt="${station.name}">
-                    <div>
-                        <button class="edit-button" onclick="editStation(${index})">Edit</button>
-                        <button class="delete-button" onclick="confirmDelete(${index})">Delete</button>
-                    </div>
-                `;
+      // Loop through each station and create list items
+      stationList.forEach((station, index) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add("station-entry");
+
+        // Create image element
+        const img = document.createElement("img");
+        img.src = station.imageUrl;
+        img.alt = station.name;
+        img.classList.add("station-image");
+
+        // Create span for station name
+        const span = document.createElement("span");
+        span.textContent = station.name;
+        span.classList.add("station-name"); // Added class for styling
+
+        // Create edit button
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.classList.add("edit-button"); // Using the 'edit-button' class
+        editButton.addEventListener("click", () => editStation(index, station));
+
+        // Create delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("delete-button"); // Using the 'delete-button' class
+        deleteButton.addEventListener("click", () => deleteStation(index));
+
+        // Append elements to the list item
+        listItem.appendChild(img);
+        listItem.appendChild(span);
+        listItem.appendChild(editButton);
+        listItem.appendChild(deleteButton);
+
+        // Append the list item to the container
         stationListContainer.appendChild(listItem);
       });
     } else {
@@ -101,12 +141,6 @@ document.addEventListener("DOMContentLoaded", function () {
       noStationsMessage.textContent = "No stations available.";
       stationListContainer.appendChild(noStationsMessage);
     }
-  }
-
-  function deleteStation(index) {
-    stationList.splice(index, 1);
-    displayStationList();
-    saveToLocalStorage();
   }
 
   function saveToLocalStorage() {

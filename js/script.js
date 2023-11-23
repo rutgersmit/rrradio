@@ -1,5 +1,5 @@
 var radio = new Audio();
-radio.volume = 0.5; // Initial volume
+radio.volume = 0.5;
 var isMuted = false;
 var isPlaying = false;
 
@@ -9,6 +9,9 @@ function toggleRadio() {
     isPlaying = false;
     document.getElementById("start-stop-button").innerText = "▶️";
   } else {
+    var cSrc = radio.src;
+    var d = "dt=" + Date.now();
+    radio.src = cSrc.includes("?") ? cSrc.includes("dt=") ? cSrc.replace(/dt=[^&]*/, d) : cSrc + "&" + d : cSrc + "?" + d;
     radio.play();
     isPlaying = true;
     document.getElementById("start-stop-button").innerText = "⏹️";
@@ -36,8 +39,9 @@ function setVolume() {
 function playStation(stationUrl, stationImage) {
   radio.src = stationUrl;
   radio.play();
+  isPlaying = true;
   document.getElementById("start-stop-button").innerText = "⏹️";
-  document.getElementById("start-stop-button").style.display = "inline-block";
+  document.getElementById("start-stop-button").style.visibility = "visible";
   document.getElementById("radio-logo").src = stationImage;
 
   // Display song information when available
@@ -68,7 +72,6 @@ window.addEventListener("beforeinstallprompt", (event) => {
   // Show a button or other UI element to prompt the user to install.
   showInstallButton();
   // Check if the app is already installed
-
   if (isAppInstalled()) {
     // If installed, hide the install button
     hideInstallButton();
@@ -77,6 +80,38 @@ window.addEventListener("beforeinstallprompt", (event) => {
     showInstallButton();
   }
 });
+
+
+
+let stations = [];
+const stationListContainer = document.getElementById("station-list");
+
+// Function to save a station to local storage
+function saveStation(name, imageUrl, streamUrl) {
+    const station = { name, imageUrl, streamUrl };
+    stations.push(station);
+    localStorage.setItem('stations', JSON.stringify(stations));
+}
+
+// Function to edit a station in the list
+function editStation(index, name, imageUrl, streamUrl) {
+    if (index >= 0 && index < stations.length) {
+        stations[index] = { name, imageUrl, streamUrl };
+        localStorage.setItem('stations', JSON.stringify(stations));
+    }
+}
+
+// Function to delete a station from the list
+function deleteStation(index) {
+    if (index >= 0 && index < stations.length) {
+        stations.splice(index, 1);
+        localStorage.setItem('stations', JSON.stringify(stations));
+    }
+}
+
+
+
+
 
 function isAppInstalled() {
   // Check if the app is running in standalone mode (iOS)
