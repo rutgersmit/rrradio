@@ -97,7 +97,7 @@ function saveStation(name, imageUrl, streamUrl) {
 function editStation(index, name, imageUrl, streamUrl) {
     if (index >= 0 && index < stations.length) {
         stations[index] = { name, imageUrl, streamUrl };
-        localStorage.setItem('stations', JSON.stringify(stations));
+        localStorage.setItem("stationList", JSON.stringify(stations));
     }
 }
 
@@ -105,11 +105,145 @@ function editStation(index, name, imageUrl, streamUrl) {
 function deleteStation(index) {
     if (index >= 0 && index < stations.length) {
         stations.splice(index, 1);
-        localStorage.setItem('stations', JSON.stringify(stations));
+        localStorage.setItem("stationList", JSON.stringify(stations));
     }
 }
 
 
+
+// Function to populate the station list for the player page
+function populatePlayerStation() {
+  // Clear existing content
+  stationListContainer.innerHTML = "";
+
+  // Retrieve stations from local storage
+  const storedStations = JSON.parse(localStorage.getItem("stationList")) || [];
+
+  // Check if there are saved stations
+  if (storedStations.length > 0) {
+    // Display all saved stations
+    console.log("Custom stations");
+    storedStations.forEach((station) => {
+      console.debug(station);
+      displayStation(station);
+    });
+  } else {
+    console.log("Predefined stations");
+    // Display a predefined station if local storage is empty
+    const predefinedStations = [
+      {
+        name: "NPO Radio 1",
+        imageUrl: "img/npo-radio-1.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 2",
+        imageUrl: "img/npo-radio-2.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-2/stream/1-aac-64",
+      },
+      {
+        name: "NPO 3FM",
+        imageUrl: "img/npo-3fm.svg",
+        streamUrl: "https://www.mp3streams.nl/zender/npo-3fm/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 4",
+        imageUrl: "img/npo-radio-4.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-4/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 5",
+        imageUrl: "img/npo-radio-5.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-5/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 6",
+        imageUrl: "img/npo-radio-6.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-6/stream/1-aac-64",
+      },
+      {
+        name: "NPO FunX",
+        imageUrl: "img/npo-funx.svg",
+        streamUrl: "https://www.mp3streams.nl/zender/npo-funx/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 1 Extra",
+        imageUrl: "img/npo-radio-1-extra.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-1-extra/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 2 Soul & Jazz",
+        imageUrl: "img/npo-radio-2-soul-jazz.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/1-aac-64",
+      },
+      {
+        name: "NPO 3FM Alternative",
+        imageUrl: "img/npo-3fm-alternative.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-3fm-alternative/stream/1-aac-64",
+      },
+      {
+        name: "NPO 3FM KX Radio",
+        imageUrl: "img/npo-3fm-kx-radio.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-3fm-kx-radio/stream/1-aac-64",
+      },
+      {
+        name: "NPO Radio 4 Concerten",
+        imageUrl: "img/npo-radio-4-concerten.svg",
+        streamUrl:
+          "https://www.mp3streams.nl/zender/npo-radio-4-concerten/stream/1-aac-64",
+      },
+      {
+        name: "Kink",
+        imageUrl: "img/kink.svg",
+        streamUrl: "https://www.mp3streams.nl/zender/kink/stream/19-aac-128",
+      },
+    ];
+
+    // Display all predefined stations
+    predefinedStations.forEach(displayStation);
+  }
+}
+
+// Function to display a station in the list
+function displayStation(station) {
+  const listItem = document.createElement("li");
+  listItem.classList.add("station-entry");
+
+  // Create image element
+  const img = document.createElement("img");
+  img.src = station.imageUrl;
+  img.alt = station.name;
+  img.classList.add("station-image");
+
+  // Create span for station name
+  const span = document.createElement("span");
+  span.textContent = station.name;
+  span.classList.add("station-name"); // Added class for styling
+
+  // Set up click event to play the station
+  listItem.addEventListener("click", () =>
+    playStation(station.streamUrl, station.imageUrl)
+  );
+
+  // Append elements to the list item
+  listItem.appendChild(img);
+  listItem.appendChild(span);
+
+  // Append the list item to the container
+  stationListContainer.appendChild(listItem);
+}
+
+// Call the function to populate the player station
+populatePlayerStation();
 
 
 
