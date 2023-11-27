@@ -26,28 +26,7 @@
             <input id="volume-slider" type="range" min="0" max="100" value="50" oninput="setVolume()" />
         </div>
 
-        <ul id="station-list">
-            <li class="station-entry"
-                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64', 'img/npo-radio-1.svg')">
-                <img class="station-image" src="img/npo-radio-1.svg" alt="NPO Radio 1" />
-                NPO Radio 1
-            </li>
-            <li class="station-entry"
-                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2/stream/3-aac-64', 'img/npo-radio-2.svg')">
-                <img class="station-image" src="img/npo-radio-2.svg" alt="NPO Radio 2" />
-                NPO Radio 2
-            </li>
-            <li class="station-entry"
-                onclick="playStation('https://www.mp3streams.nl/zender/kink/stream/19-aac-128', 'img/kink.svg')">
-                <img class="station-image" src="img/kink.svg" alt="Kink" />
-                Kink
-            </li>
-            <li class="station-entry"
-                onclick="playStation('https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/44-mp3-192?vet=cool', 'img/npo-radio-2-soul-jazz.png')">
-                <img class="station-image" src="img/npo-radio-2-soul-jazz.png" alt="NPO Soul & Jazz" />
-                NPO Soul & Jazz
-            </li>
-        </ul>
+        <ul id="station-list"></ul>
 
         <div id="song-info"></div>
         <button id="install-button" style="display: none">Install App</button>

@@ -117,100 +117,52 @@ function populatePlayerStation() {
   stationListContainer.innerHTML = "";
 
   // Retrieve stations from local storage
-  const storedStations = JSON.parse(localStorage.getItem("stationList")) || [];
+  let storedStations = JSON.parse(localStorage.getItem("stationList")) || [];
 
-  // Check if there are saved stations
-  if (storedStations.length > 0) {
-    // Display all saved stations
-    console.log("Custom stations");
-    storedStations.forEach((station) => {
-      console.debug(station);
-      displayStation(station);
-    });
-  } else {
-    console.log("Predefined stations");
-    // Display a predefined station if local storage is empty
+  // Check if local storage is empty
+  if (storedStations.length === 0) {
+    // Load predefined stations into storage
     const predefinedStations = [
       {
         name: "NPO Radio 1",
-        imageUrl: "img/npo-radio-1.svg",
+        imageUrl: "https://www.mp3streams.nl/logo/z/npo-radio-1",
         streamUrl:
           "https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64",
       },
       {
         name: "NPO Radio 2",
-        imageUrl: "img/npo-radio-2.svg",
+        imageUrl: "https://www.mp3streams.nl/logo/z/npo-radio-2",
         streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-2/stream/1-aac-64",
+          "https://www.mp3streams.nl/zender/npo-radio-2/stream/3-aac-64",
       },
       {
-        name: "NPO 3FM",
-        imageUrl: "img/npo-3fm.svg",
-        streamUrl: "https://www.mp3streams.nl/zender/npo-3fm/stream/1-aac-64",
+        name: "3FM",
+        imageUrl: "https://www.mp3streams.nl/logo/z/3fm",
+        streamUrl: "https://www.mp3streams.nl/zender/3fm/stream/7-aac-64",
       },
       {
-        name: "NPO Radio 4",
-        imageUrl: "img/npo-radio-4.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-4/stream/1-aac-64",
-      },
-      {
-        name: "NPO Radio 5",
-        imageUrl: "img/npo-radio-5.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-5/stream/1-aac-64",
-      },
-      {
-        name: "NPO Radio 6",
-        imageUrl: "img/npo-radio-6.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-6/stream/1-aac-64",
-      },
-      {
-        name: "NPO FunX",
-        imageUrl: "img/npo-funx.svg",
-        streamUrl: "https://www.mp3streams.nl/zender/npo-funx/stream/1-aac-64",
-      },
-      {
-        name: "NPO Radio 1 Extra",
-        imageUrl: "img/npo-radio-1-extra.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-1-extra/stream/1-aac-64",
+        name: "KINK",
+        imageUrl: "https://www.mp3streams.nl/logo/z/kink",
+        streamUrl: "https://www.mp3streams.nl/zender/kink/stream/19-aac-128",
       },
       {
         name: "NPO Radio 2 Soul & Jazz",
-        imageUrl: "img/npo-radio-2-soul-jazz.svg",
+        imageUrl:
+          "https://broadcast-images.nporadio.nl/w_600/s3-nposoulenjazz/4ge46qazf0lr-nieuw-logo.jpg",
         streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/1-aac-64",
-      },
-      {
-        name: "NPO 3FM Alternative",
-        imageUrl: "img/npo-3fm-alternative.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-3fm-alternative/stream/1-aac-64",
-      },
-      {
-        name: "NPO 3FM KX Radio",
-        imageUrl: "img/npo-3fm-kx-radio.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-3fm-kx-radio/stream/1-aac-64",
-      },
-      {
-        name: "NPO Radio 4 Concerten",
-        imageUrl: "img/npo-radio-4-concerten.svg",
-        streamUrl:
-          "https://www.mp3streams.nl/zender/npo-radio-4-concerten/stream/1-aac-64",
-      },
-      {
-        name: "Kink",
-        imageUrl: "img/kink.svg",
-        streamUrl: "https://www.mp3streams.nl/zender/kink/stream/19-aac-128",
+          "https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/44-mp3-192",
       },
     ];
 
-    // Display all predefined stations
-    predefinedStations.forEach(displayStation);
+    // Set stored stations to predefined stations
+    storedStations = predefinedStations;
+
+    // Save predefined stations to local storage
+    localStorage.setItem("stationList", JSON.stringify(predefinedStations));
   }
+
+  // Display all stored stations
+  storedStations.forEach(displayStation);
 }
 
 // Function to display a station in the list
