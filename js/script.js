@@ -11,7 +11,11 @@ function toggleRadio() {
   } else {
     var cSrc = radio.src;
     var d = "dt=" + Date.now();
-    radio.src = cSrc.includes("?") ? cSrc.includes("dt=") ? cSrc.replace(/dt=[^&]*/, d) : cSrc + "&" + d : cSrc + "?" + d;
+    radio.src = cSrc.includes("?")
+      ? cSrc.includes("dt=")
+        ? cSrc.replace(/dt=[^&]*/, d)
+        : cSrc + "&" + d
+      : cSrc + "?" + d;
     radio.play();
     isPlaying = true;
     document.getElementById("start-stop-button").innerText = "⏹️";
@@ -81,35 +85,43 @@ window.addEventListener("beforeinstallprompt", (event) => {
   }
 });
 
+// Event listener for the "error" event
+radio.addEventListener("error", function (e) {
+  //console.error('Audio playback error:', e);
 
+  // Check for network error (MEDIA_ERR_NETWORK)
+  if (e.target.error && e.target.error.code === MediaError.MEDIA_ERR_NETWORK) {
+    // Network error occurred, attempt to resume playback
+    radio.load(); // Reload the audio element
+    radio.play(); // Attempt to resume playback
+  }
+});
 
 let stations = [];
 const stationListContainer = document.getElementById("station-list");
 
 // Function to save a station to local storage
 function saveStation(name, imageUrl, streamUrl) {
-    const station = { name, imageUrl, streamUrl };
-    stations.push(station);
-    localStorage.setItem('stations', JSON.stringify(stations));
+  const station = { name, imageUrl, streamUrl };
+  stations.push(station);
+  localStorage.setItem("stations", JSON.stringify(stations));
 }
 
 // Function to edit a station in the list
 function editStation(index, name, imageUrl, streamUrl) {
-    if (index >= 0 && index < stations.length) {
-        stations[index] = { name, imageUrl, streamUrl };
-        localStorage.setItem("stationList", JSON.stringify(stations));
-    }
+  if (index >= 0 && index < stations.length) {
+    stations[index] = { name, imageUrl, streamUrl };
+    localStorage.setItem("stationList", JSON.stringify(stations));
+  }
 }
 
 // Function to delete a station from the list
 function deleteStation(index) {
-    if (index >= 0 && index < stations.length) {
-        stations.splice(index, 1);
-        localStorage.setItem("stationList", JSON.stringify(stations));
-    }
+  if (index >= 0 && index < stations.length) {
+    stations.splice(index, 1);
+    localStorage.setItem("stationList", JSON.stringify(stations));
+  }
 }
-
-
 
 // Function to populate the station list for the player page
 function populatePlayerStation() {
@@ -196,8 +208,6 @@ function displayStation(station) {
 
 // Call the function to populate the player station
 populatePlayerStation();
-
-
 
 function isAppInstalled() {
   // Check if the app is running in standalone mode (iOS)
