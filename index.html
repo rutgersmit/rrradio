@@ -22,7 +22,6 @@
 
         <div id="controls">
             <button id="start-stop-button" onclick="toggleStartStop()" style="visibility: hidden;">⏹️</button>
-            <button id="mute-button" onclick="toggleMute()">🔊</button><br />
             <input id="volume-slider" type="range" min="0" max="100" value="50" oninput="setVolume()" />
         </div>
 
@@ -31,7 +30,8 @@
         <div id="song-info"></div>
         <button id="install-button" style="display: none">Install App</button>
         <button id="playlist-button" onclick="window.location.href = 'manage.html'">Edit stations</button>
-        <div id="version">v1.0.2</div>
+        <div id="version">v1.0.3</div>
+        <!-- [version] -->
     </div>
 
     <script src="js/script.js"></script>
