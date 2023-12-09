@@ -23,8 +23,7 @@ jobs:
         with:
           find: '[version]'
           replace: '${{github.run_number}}'
-          file_pattern: 'index.html'
-          file_encoding: 'utf-8'
+          regex: false
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
