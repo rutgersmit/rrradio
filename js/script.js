@@ -8,6 +8,7 @@ function toggleRadio() {
     radio.pause();
     isPlaying = false;
     document.getElementById("start-stop-button").innerText = "▶️";
+    document.getElementById("volume-slider").style.visibility = "hidden";
   } else {
     var cSrc = radio.src;
     var d = "dt=" + Date.now();
@@ -19,6 +20,8 @@ function toggleRadio() {
     radio.play();
     isPlaying = true;
     document.getElementById("start-stop-button").innerText = "⏹️";
+    document.getElementById("volume-slider").style.visibility = "visible";
+
   }
 }
 
@@ -46,6 +49,7 @@ function playStation(stationUrl, stationImage) {
   isPlaying = true;
   document.getElementById("start-stop-button").innerText = "⏹️";
   document.getElementById("start-stop-button").style.visibility = "visible";
+  document.getElementById("volume-slider").style.visibility = "visible";
   document.getElementById("radio-logo").src = stationImage;
 
   // Display song information when available
