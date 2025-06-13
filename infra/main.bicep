@@ -59,15 +59,8 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
     name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: false
   }
-}
-
-// User-assigned managed identity
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'id-${resourceToken}'
-  location: location
-  tags: tags
 }
 
 // Container Apps Environment
@@ -92,10 +85,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })
   identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
+    type: 'SystemAssigned'
   }
   properties: {
     environmentId: containerAppsEnvironment.id
@@ -114,7 +104,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       registries: [
         {
           server: containerRegistry.properties.loginServer
-          identity: managedIdentity.id
+          identity: 'system'
         }
       ]
       secrets: []
@@ -144,25 +134,11 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-// Add role assignment after container app is created
-resource acrPullRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: containerRegistry
-  name: guid(containerRegistry.id, containerApp.id, '7f951dda-4ed3-4680-a7ca-43fe172d538d')
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull
-    principalId: containerApp.identity.principalId
-    principalType: 'ServicePrincipal'
-  }
-  dependsOn: [
-    containerApp
-  ]
-}
 
 // Outputs
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.properties.ConnectionString
 output AZURE_CONTAINER_ENVIRONMENT_ID string = containerAppsEnvironment.id
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.properties.loginServer
-output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID string = managedIdentity.id
-output SERVICE_WEB_IDENTITY_PRINCIPAL_ID string = managedIdentity.properties.principalId
+output SERVICE_WEB_IDENTITY_PRINCIPAL_ID string = containerApp.identity.principalId
 output SERVICE_WEB_NAME string = containerApp.name
 output SERVICE_WEB_URI string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
