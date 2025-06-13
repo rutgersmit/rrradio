@@ -54,6 +54,7 @@ jobs:
           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: 'rg-rrradio'
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
