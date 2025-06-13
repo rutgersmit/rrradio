@@ -12,8 +12,12 @@ param location string = resourceGroup().location
 @description('Node environment')
 param nodeEnv string = 'production'
 
+@description('Container image tag')
+param imageTag string = 'latest'
+
 // Generate a unique token based on environment name and subscription id
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+//var resourceToken = 'rrradio-${environmentName}' //toLower(uniqueString(subscription().id, environmentName, location))
 
 // Create names for resources
 var tags = {
@@ -112,7 +116,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     template: {
       containers: [
         {
-          image: '${containerRegistry.properties.loginServer}/rrradio:latest'
+          image: '${containerRegistry.properties.loginServer}/rrradio:${imageTag}'
           name: 'rrradio'
           env: [
             {

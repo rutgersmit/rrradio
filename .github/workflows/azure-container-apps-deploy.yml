@@ -3,11 +3,11 @@ name: Deploy to Azure Container Apps
 on:
   push:
     branches:
-      - main
+      - test
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
+      - test
 
 permissions:
   id-token: write
@@ -29,9 +29,6 @@ jobs:
           find: '[version]'
           replace: '${{github.run_number}}'
           regex: false
-
-#      - name: Install azd
-#        uses: Azure/setup-azd@v1.0.0
 
       - name: setup-azd
         uses: Azure/setup-azd@v2.1.0
