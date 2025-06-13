@@ -30,8 +30,11 @@ jobs:
           replace: '${{github.run_number}}'
           regex: false
 
-      - name: Install azd
-        uses: Azure/setup-azd@v1.0.0
+#      - name: Install azd
+#        uses: Azure/setup-azd@v1.0.0
+
+      - name: setup-azd
+        uses: Azure/setup-azd@v2.1.0
 
       - name: Log in with Azure (Federated Credentials)
         if: ${{ env.AZURE_CLIENT_ID != '' }}
