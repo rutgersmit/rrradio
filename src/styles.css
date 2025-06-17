@@ -967,6 +967,13 @@ body {
         justify-content: center;
     }
     
+    /* Compact Add Station button for tablets */
+    #addStationBtn {
+        padding: 10px 16px;
+        font-size: 14px;
+        gap: 6px;
+    }
+    
     .stations-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -1005,11 +1012,56 @@ body {
         font-size: 1.5rem;
     }
     
+    /* Ultra-compact Add Station button for mobile - icon only */
+    #addStationBtn {
+        padding: 8px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        gap: 0;
+        justify-content: center;
+    }
+    
+    /* Hide the text, keep only the icon */
+    #addStationBtn .btn-text {
+        display: none;
+    }
+    
+    #addStationBtn .fas {
+        font-size: 18px;
+        margin: 0;
+    }
+    
     .station-card {
         padding: 14px;
     }
     
     .volume-control {
         display: none;
+    }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 360px) {
+    .header-actions {
+        gap: 10px;
+    }
+    
+    /* Even more compact for very small screens */
+    #addStationBtn {
+        width: 36px;
+        height: 36px;
+        padding: 6px;
+    }
+    
+    #addStationBtn .fas {
+        font-size: 16px;
+    }
+    
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
     }
 }
