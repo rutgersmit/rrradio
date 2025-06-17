@@ -1,6 +1,6 @@
 class RadioApp {
     constructor() {
-        console.log('Initializing RadioApp...');
+        console.log('Initializing Rrradio...');
         this.stations = this.loadStations();
         console.log('Loaded stations:', this.stations);
         this.currentStation = null;
