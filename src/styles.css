@@ -772,6 +772,7 @@ body {
     gap: 15px;
     justify-content: flex-end;
     margin-top: 30px;
+    padding: 0 30px 30px 30px;
 }
 
 /* Settings Modal Styles */
@@ -1096,6 +1097,10 @@ body {
     
     .modal-body {
         padding: 20px;
+    }
+    
+    .modal-footer {
+        padding: 0 20px 20px 20px;
     }
 }
 
