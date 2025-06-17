@@ -757,18 +757,20 @@ class RadioApp {
                     }
                 </div>
                 <div class="station-info">
-                    <h3>${this.escapeHtml(station.name)}</h3>
-                    <div class="station-actions">
-                        <button class="station-menu-btn" onclick="event.stopPropagation(); app.toggleStationMenu('${station.id}')">
-                            <i class="fas fa-ellipsis-vertical"></i>
-                        </button>
-                        <div class="station-menu" id="menu-${station.id}">
-                            <button class="station-menu-item" onclick="event.stopPropagation(); app.editStation('${station.id}')">
-                                <i class="fas fa-edit"></i> Edit
+                    <div class="station-header">
+                        <h3>${this.escapeHtml(station.name)}</h3>
+                        <div class="station-actions">
+                            <button class="station-menu-btn" onclick="event.stopPropagation(); app.toggleStationMenu('${station.id}')">
+                                <i class="fas fa-ellipsis-vertical"></i>
                             </button>
-                            <button class="station-menu-item" onclick="event.stopPropagation(); app.removeStation('${station.id}')">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
+                            <div class="station-menu" id="menu-${station.id}">
+                                <button class="station-menu-item" onclick="event.stopPropagation(); app.editStation('${station.id}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="station-menu-item" onclick="event.stopPropagation(); app.removeStation('${station.id}')">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
