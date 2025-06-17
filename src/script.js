@@ -13,10 +13,28 @@ class RadioApp {
         this.crossfadeEnabled = true; // Enable/disable crossfade feature
         this.targetVolume = 0.7; // Target volume for crossfade completion
         
+        // Version information
+        this.version = {
+            number: '1.3.0',
+            build: this.generateBuildNumber(),
+            date: this.formatBuildDate(),
+            codename: 'Frequency Shift'
+        };
+        
         this.initializeEventListeners();
         this.renderStations();
         this.setupAudioEventListeners();
         this.createCrossfadeAudio();
+        
+        // Initialize version info immediately
+        this.updateVersionInfo();
+        
+        // Make version info accessible globally for debugging
+        window.rrradioVersion = this.version;
+        
+        // Add helpful debug methods
+        window.showRrradioInfo = () => this.showVersionDetails();
+        window.getRrradioVersion = () => this.version;
         
         // Add a method to clear localStorage for testing (accessible via browser console)
         window.clearRadioStations = () => {
@@ -246,6 +264,36 @@ class RadioApp {
 
         // Load saved settings
         this.loadSettings();
+        
+        // Add version info click handler for detailed info
+        this.setupVersionInfoHandler();
+    }
+    
+    setupVersionInfoHandler() {
+        // Add click handler to version info for detailed information
+        const versionInfo = document.querySelector('.version-info');
+        if (versionInfo) {
+            versionInfo.style.cursor = 'pointer';
+            versionInfo.title = 'Click for detailed version information';
+            
+            versionInfo.addEventListener('click', () => {
+                this.showVersionDetails();
+            });
+        }
+    }
+    
+    showVersionDetails() {
+        const detailedInfo = `🎵 Rrradio v${this.version.number} "${this.version.codename}" - Built with ❤️ for radio lovers!`;
+        this.showNotification(detailedInfo, 5000); // Show for 5 seconds
+        
+        // Also log detailed info to console
+        console.group('🎵 Rrradio Version Details');
+        console.log(`Version: ${this.version.number} (${this.version.codename})`);
+        console.log(`Build: ${this.version.build}`);
+        console.log(`Last Updated: ${this.version.date}`);
+        console.log('Features: Background playback, Crossfade, PWA, Dark/Light themes');
+        console.log('Built with: Vanilla JavaScript, CSS Grid, Web Audio API, Media Session API');
+        console.groupEnd();
     }
 
     setupAudioEventListeners() {
@@ -932,6 +980,46 @@ class RadioApp {
         // Set theme preference
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'auto';
         document.getElementById('themePreference').value = currentTheme;
+        
+        // Update version information
+        this.updateVersionInfo();
+    }
+    
+    updateVersionInfo() {
+        // Update version display elements
+        const appVersionEl = document.getElementById('appVersion');
+        const buildNumberEl = document.getElementById('buildNumber');
+        const buildDateEl = document.getElementById('buildDate');
+        
+        if (appVersionEl) appVersionEl.textContent = this.version.number;
+        if (buildNumberEl) buildNumberEl.textContent = this.version.build;
+        if (buildDateEl) buildDateEl.textContent = this.version.date;
+        
+        // Add version info to console for debugging
+        console.log(`Rrradio v${this.version.number} (${this.version.codename}) - Build ${this.version.build}`);
+    }
+    
+    generateBuildNumber() {
+        // Generate a build number based on the current date and time
+        // In production, this would typically be set during the build process
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${year}.${month}.${day}.${hours}${minutes}`;
+    }
+    
+    formatBuildDate() {
+        // Format the current date for display
+        const now = new Date();
+        return now.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+        });
     }
 
     setThemePreference(preference) {
@@ -957,9 +1045,7 @@ class RadioApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    showNotification(message) {
+    }    showNotification(message, duration = 3000) {
         // Create a simple notification
         const notification = document.createElement('div');
         notification.style.cssText = `
@@ -974,6 +1060,8 @@ class RadioApp {
             z-index: 3000;
             font-weight: 600;
             animation: slideInRight 0.3s ease;
+            max-width: 300px;
+            word-wrap: break-word;
         `;
         notification.textContent = message;
 
@@ -986,17 +1074,20 @@ class RadioApp {
             }
         `;
         document.head.appendChild(style);
-
         document.body.appendChild(notification);
 
-        // Remove notification after 3 seconds
+        // Remove notification after specified duration
         setTimeout(() => {
             notification.style.animation = 'slideInRight 0.3s ease reverse';
             setTimeout(() => {
-                document.body.removeChild(notification);
-                document.head.removeChild(style);
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+                if (document.head.contains(style)) {
+                    document.head.removeChild(style);
+                }
             }, 300);
-        }, 3000);
+        }, duration);
     }
 }
 
