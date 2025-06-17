@@ -1,0 +1,13 @@
+name: rrradio
+metadata:
+  template: rrradio@0.0.1-beta
+infra:
+  provider: bicep
+services:
+  web:
+    project: .
+    language: js
+    host: containerapp
+    docker:
+      path: ./docker/Dockerfile
+      context: .

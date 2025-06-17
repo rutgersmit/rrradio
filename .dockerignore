@@ -1,0 +1,17 @@
+# Docker ignore file
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.env
+.nyc_output
+coverage
+.ds_store
+*.log
+docker/docker-compose.yml
+docker/Dockerfile
+scripts/
+rebuild.sh
+restart.sh
+logs.sh
