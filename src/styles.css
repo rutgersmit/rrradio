@@ -5,11 +5,80 @@
     box-sizing: border-box;
 }
 
+/* CSS Custom Properties for Light/Dark Theme */
+:root {
+    /* Light theme (default) */
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-bg-dark: rgba(30, 30, 30, 0.95);
+    --text-primary: #333;
+    --text-primary-dark: #ffffff;
+    --text-secondary: #666;
+    --text-secondary-dark: #cccccc;
+    --accent-color: #667eea;
+    --accent-color-dark: #7c3aed;
+    --border-color: #e9ecef;
+    --border-color-dark: #404040;
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --modal-overlay-dark: rgba(0, 0, 0, 0.85);
+    --input-bg: #ffffff;
+    --input-bg-dark: #2a2a2a;
+    --menu-hover: #f8f9fa;
+    --menu-hover-dark: #3a3a3a;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme media query */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-gradient: var(--bg-gradient-dark);
+        --card-bg: var(--card-bg-dark);
+        --text-primary: var(--text-primary-dark);
+        --text-secondary: var(--text-secondary-dark);
+        --accent-color: var(--accent-color-dark);
+        --border-color: var(--border-color-dark);
+        --modal-overlay: var(--modal-overlay-dark);
+        --input-bg: var(--input-bg-dark);
+        --menu-hover: var(--menu-hover-dark);
+        --shadow-light: var(--shadow-dark);
+    }
+}
+
+/* Manual theme overrides */
+[data-theme="light"] {
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-primary: #333;
+    --text-secondary: #666;
+    --accent-color: #667eea;
+    --border-color: #e9ecef;
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --input-bg: #ffffff;
+    --menu-hover: #f8f9fa;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --card-bg: rgba(30, 30, 30, 0.95);
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --accent-color: #7c3aed;
+    --border-color: #404040;
+    --modal-overlay: rgba(0, 0, 0, 0.85);
+    --input-bg: #2a2a2a;
+    --menu-hover: #3a3a3a;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-gradient);
     min-height: 100vh;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease, background 0.3s ease;
 }
 
 .container {
@@ -26,16 +95,17 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     padding: 20px 30px;
     border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-light);
     backdrop-filter: blur(10px);
     margin-bottom: 30px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .header h1 {
-    color: #667eea;
+    color: var(--accent-color);
     font-size: 2.5rem;
     font-weight: 700;
     display: flex;
@@ -45,6 +115,34 @@ body {
 
 .header h1 i {
     animation: pulse 2s infinite;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-theme-toggle {
+    background: none;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-theme-toggle:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--accent-color);
+    transform: scale(1.1);
 }
 
 @keyframes pulse {
@@ -68,7 +166,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--accent-color), #764ba2);
     color: white;
 }
 
@@ -78,14 +176,15 @@ body {
 }
 
 .btn-secondary {
-    background: #f8f9fa;
-    color: #6c757d;
-    border: 2px solid #dee2e6;
+    background: var(--menu-hover);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
+    background: var(--border-color);
+    border-color: var(--text-secondary);
 }
 
 .btn-danger {
@@ -107,28 +206,29 @@ body {
 /* No stations message */
 .no-stations {
     text-align: center;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     padding: 60px 40px;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-light);
     backdrop-filter: blur(10px);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .no-stations i {
     font-size: 4rem;
-    color: #667eea;
+    color: var(--accent-color);
     margin-bottom: 20px;
     opacity: 0.7;
 }
 
 .no-stations h2 {
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 10px;
     font-size: 2rem;
 }
 
 .no-stations p {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 1.2rem;
 }
 
@@ -143,10 +243,10 @@ body {
 
 /* Station card */
 .station-card {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-light);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     cursor: pointer;
@@ -164,12 +264,12 @@ body {
 }
 
 .station-card.playing {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border: 2px solid #667eea;
+    background: var(--card-bg);
+    border: 2px solid var(--accent-color);
 }
 
 .station-card.playing .station-info h3 {
-    color: #2c3e50;
+    color: var(--text-primary);
     font-weight: 700;
 }
 
@@ -180,7 +280,7 @@ body {
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, var(--accent-color), #764ba2);
     animation: pulse-border 2s infinite;
 }
 
@@ -249,7 +349,7 @@ body {
 .station-info h3 {
     font-size: 1.3rem;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -267,7 +367,7 @@ body {
     padding: 8px;
     border-radius: 50%;
     cursor: pointer;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 1.2rem;
     transition: all 0.3s ease;
     width: 32px;
@@ -279,7 +379,7 @@ body {
 
 .station-menu-btn:hover {
     background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    color: var(--accent-color);
     transform: scale(1.1);
 }
 
@@ -287,10 +387,10 @@ body {
     position: absolute;
     top: 100%;
     right: 0;
-    background: white;
+    background: var(--card-bg);
     border-radius: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--border-color);
     min-width: 120px;
     z-index: 9999;
     opacity: 0;
@@ -317,7 +417,7 @@ body {
     background: none;
     cursor: pointer;
     font-size: 14px;
-    color: #333;
+    color: var(--text-primary);
     transition: background-color 0.2s ease;
     border-radius: 0;
 }
@@ -335,7 +435,7 @@ body {
 }
 
 .station-menu-item:hover {
-    background: #f8f9fa;
+    background: var(--menu-hover);
 }
 
 .station-menu-item:last-child:hover {
@@ -353,7 +453,7 @@ body {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #667eea;
+    color: var(--accent-color);
     cursor: pointer;
     padding: 10px;
     border-radius: 50%;
@@ -386,15 +486,16 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--card-bg);
     backdrop-filter: blur(20px);
     padding: 20px;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -8px 32px var(--shadow-light);
     border-top: 1px solid rgba(102, 126, 234, 0.2);
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 1000;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .player-info {
@@ -422,12 +523,12 @@ body {
 .current-station-name {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .player-status {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -441,14 +542,14 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #667eea;
+    color: var(--accent-color);
 }
 
 .volume-slider {
     width: 100px;
     height: 4px;
     border-radius: 2px;
-    background: #e9ecef;
+    background: var(--border-color);
     outline: none;
     cursor: pointer;
 }
@@ -458,7 +559,7 @@ body {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #667eea;
+    background: var(--accent-color);
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
@@ -467,7 +568,7 @@ body {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #667eea;
+    background: var(--accent-color);
     cursor: pointer;
     border: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -481,10 +582,11 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--modal-overlay);
     backdrop-filter: blur(5px);
     z-index: 2000;
     animation: fadeIn 0.3s ease;
+    transition: background 0.3s ease;
 }
 
 .modal.show {
@@ -499,7 +601,7 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg);
     border-radius: 20px;
     width: 90%;
     max-width: 500px;
@@ -507,6 +609,7 @@ body {
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease;
+    transition: background 0.3s ease;
 }
 
 @keyframes slideIn {
@@ -525,11 +628,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 25px 30px;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h2 {
-    color: #333;
+    color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 600;
 }
@@ -538,7 +641,7 @@ body {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #666;
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
@@ -546,8 +649,8 @@ body {
 }
 
 .close-btn:hover {
-    background: #f8f9fa;
-    color: #333;
+    background: var(--menu-hover);
+    color: var(--text-primary);
 }
 
 .modal-body {
@@ -562,21 +665,23 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .form-group input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
     transition: all 0.3s ease;
+    background: var(--input-bg);
+    color: var(--text-primary);
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -602,6 +707,10 @@ body {
     
     .header h1 {
         font-size: 2rem;
+    }
+    
+    .header-actions {
+        justify-content: center;
     }
     
     .stations-grid {

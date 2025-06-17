@@ -69,7 +69,10 @@
     <div class="container">
         <header class="header">
             <h1><i class="fas fa-radio"></i> Rrradio</h1>
-            <div>
+            <div class="header-actions">
+                <button id="themeToggle" class="btn-theme-toggle" title="Toggle dark/light theme">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <button id="addStationBtn" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add Station
                 </button>
@@ -202,6 +205,64 @@
         // Initialize Media Session Manager
         let mediaSessionManager;
 
+        // Theme Management
+        const ThemeManager = {
+            init() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.currentTheme = this.getStoredTheme() || this.getPreferredTheme();
+                
+                this.setTheme(this.currentTheme);
+                this.updateThemeIcon();
+                this.bindEvents();
+            },
+
+            getStoredTheme() {
+                return localStorage.getItem('theme');
+            },
+
+            getPreferredTheme() {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            },
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                
+                // Update PWA theme color
+                const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                if (metaThemeColor) {
+                    metaThemeColor.setAttribute('content', theme === 'dark' ? '#1a1a2e' : '#667eea');
+                }
+            },
+
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+                this.updateThemeIcon();
+            },
+
+            updateThemeIcon() {
+                const icon = this.themeToggle.querySelector('i');
+                icon.className = this.currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+                this.themeToggle.setAttribute('title', 
+                    this.currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
+                );
+            },
+
+            bindEvents() {
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!this.getStoredTheme()) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                        this.updateThemeIcon();
+                    }
+                });
+            }
+        };
+
         // Function to update page title with current station
         function updatePageTitle(stationName = null) {
             if (stationName) {
@@ -216,6 +277,9 @@
             const audioElement = document.getElementById('audioElement');
             const currentStationName = document.getElementById('currentStationName');
             const currentStationImage = document.getElementById('currentStationImage');
+            
+            // Initialize Theme Manager
+            ThemeManager.init();
             
             // Initialize Media Session Manager
             mediaSessionManager = new MediaSessionManager(audioElement);
