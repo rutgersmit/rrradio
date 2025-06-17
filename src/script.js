@@ -5,12 +5,18 @@ class RadioApp {
         console.log('Loaded stations:', this.stations);
         this.currentStation = null;
         this.audio = document.getElementById('audioElement');
+        this.crossfadeAudio = null; // Secondary audio element for crossfading
         this.isPlaying = false;
         this.isStopping = false; // Flag to track intentional stops
+        this.isCrossfading = false; // Flag to track crossfade in progress
+        this.crossfadeDuration = 2000; // Crossfade duration in milliseconds
+        this.crossfadeEnabled = true; // Enable/disable crossfade feature
+        this.targetVolume = 0.7; // Target volume for crossfade completion
         
         this.initializeEventListeners();
         this.renderStations();
         this.setupAudioEventListeners();
+        this.createCrossfadeAudio();
         
         // Add a method to clear localStorage for testing (accessible via browser console)
         window.clearRadioStations = () => {
@@ -153,6 +159,38 @@ class RadioApp {
             this.updateStation();
         });
 
+        // Settings modal
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            this.showSettingsModal();
+        });
+
+        document.getElementById('closeSettingsModal').addEventListener('click', () => {
+            this.hideSettingsModal();
+        });
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+            this.saveSettings();
+        });
+
+        document.getElementById('resetSettingsBtn').addEventListener('click', () => {
+            this.resetSettings();
+        });
+
+        // Crossfade settings
+        document.getElementById('crossfadeEnabled').addEventListener('change', (e) => {
+            this.crossfadeEnabled = e.target.checked;
+        });
+
+        document.getElementById('crossfadeDuration').addEventListener('input', (e) => {
+            this.crossfadeDuration = parseInt(e.target.value);
+            document.getElementById('crossfadeDurationValue').textContent = (this.crossfadeDuration / 1000).toFixed(1) + 's';
+        });
+
+        // Theme preference
+        document.getElementById('themePreference').addEventListener('change', (e) => {
+            this.setThemePreference(e.target.value);
+        });
+
         // Audio player controls
         document.getElementById('playPauseBtn').addEventListener('click', () => {
             this.togglePlayPause();
@@ -170,6 +208,7 @@ class RadioApp {
         window.addEventListener('click', (e) => {
             const addModal = document.getElementById('addStationModal');
             const editModal = document.getElementById('editStationModal');
+            const settingsModal = document.getElementById('settingsModal');
 
             if (e.target === addModal) {
                 this.hideAddStationModal();
@@ -177,11 +216,17 @@ class RadioApp {
             if (e.target === editModal) {
                 this.hideEditStationModal();
             }
+            if (e.target === settingsModal) {
+                this.hideSettingsModal();
+            }
 
             // Close station menus when clicking outside
             if (!e.target.closest('.station-actions')) {
                 document.querySelectorAll('.station-menu').forEach(menu => {
                     menu.classList.remove('show');
+                });
+                document.querySelectorAll('.station-card.menu-active').forEach(card => {
+                    card.classList.remove('menu-active');
                 });
             }
         });
@@ -191,66 +236,248 @@ class RadioApp {
             if (e.key === 'Escape') {
                 this.hideAddStationModal();
                 this.hideEditStationModal();
+                this.hideSettingsModal();
             }
             if (e.key === ' ' && this.currentStation) {
                 e.preventDefault();
                 this.togglePlayPause();
             }
         });
+
+        // Load saved settings
+        this.loadSettings();
     }
 
     setupAudioEventListeners() {
-        this.audio.addEventListener('loadstart', () => {
-            this.updatePlayerStatus('Loading...');
-        });
-
-        this.audio.addEventListener('loadeddata', () => {
-            this.updatePlayerStatus('Ready to play');
-        });
-
-        this.audio.addEventListener('playing', () => {
-            this.isPlaying = true;
-            this.updatePlayerStatus('Playing');
-            this.updatePlayPauseButton();
-            this.markStationAsPlaying();
-        });
-
-        this.audio.addEventListener('pause', () => {
-            this.isPlaying = false;
-            this.updatePlayerStatus('Paused');
-            this.updatePlayPauseButton();
-        });
-
-        this.audio.addEventListener('ended', () => {
-            this.isPlaying = false;
-            this.updatePlayerStatus('Ended');
-            this.updatePlayPauseButton();
-        });
-
-        this.audio.addEventListener('error', (e) => {
-            console.error('Audio error:', e);
-            // Only show error message if it's not an intentional stop
-            if (!this.isStopping) {
-                this.updatePlayerStatus('Error loading stream');
-                this.isPlaying = false;
-                this.updatePlayPauseButton();
-            }
-        });
-
-        this.audio.addEventListener('waiting', () => {
-            this.updatePlayerStatus('Buffering...');
-        });
-
-        this.audio.addEventListener('canplay', () => {
-            if (this.isPlaying) {
-                this.updatePlayerStatus('Playing');
-            } else {
-                this.updatePlayerStatus('Ready to play');
-            }
-        });
+        // Remove any existing listeners first to prevent duplicates
+        this.removeAudioEventListeners(this.audio);
+        
+        this.audio.addEventListener('loadstart', this.audioLoadStartHandler);
+        this.audio.addEventListener('loadeddata', this.audioLoadedDataHandler);
+        this.audio.addEventListener('playing', this.audioPlayingHandler);
+        this.audio.addEventListener('pause', this.audioPauseHandler);
+        this.audio.addEventListener('ended', this.audioEndedHandler);
+        this.audio.addEventListener('error', this.audioErrorHandler);
+        this.audio.addEventListener('waiting', this.audioWaitingHandler);
+        this.audio.addEventListener('canplay', this.audioCanPlayHandler);
 
         // Set initial volume
         this.audio.volume = 0.7;
+        this.targetVolume = 0.7;
+    }
+
+    removeAudioEventListeners(audioElement) {
+        if (!audioElement) return;
+        
+        audioElement.removeEventListener('loadstart', this.audioLoadStartHandler);
+        audioElement.removeEventListener('loadeddata', this.audioLoadedDataHandler);
+        audioElement.removeEventListener('playing', this.audioPlayingHandler);
+        audioElement.removeEventListener('pause', this.audioPauseHandler);
+        audioElement.removeEventListener('ended', this.audioEndedHandler);
+        audioElement.removeEventListener('error', this.audioErrorHandler);
+        audioElement.removeEventListener('waiting', this.audioWaitingHandler);
+        audioElement.removeEventListener('canplay', this.audioCanPlayHandler);
+    }
+
+    // Audio event handler methods (bound to maintain 'this' context)
+    audioLoadStartHandler = () => {
+        this.updatePlayerStatus('Loading...');
+    }
+
+    audioLoadedDataHandler = () => {
+        this.updatePlayerStatus('Ready to play');
+    }
+
+    audioPlayingHandler = () => {
+        this.isPlaying = true;
+        this.updatePlayerStatus('Playing');
+        this.updatePlayPauseButton();
+        this.markStationAsPlaying();
+    }
+
+    audioPauseHandler = () => {
+        this.isPlaying = false;
+        this.updatePlayerStatus('Paused');
+        this.updatePlayPauseButton();
+    }
+
+    audioEndedHandler = () => {
+        this.isPlaying = false;
+        this.updatePlayerStatus('Ended');
+        this.updatePlayPauseButton();
+    }
+
+    audioErrorHandler = (e) => {
+        console.error('Audio error:', e);
+        // Only show error message if it's not an intentional stop
+        if (!this.isStopping) {
+            this.updatePlayerStatus('Error loading stream');
+            this.isPlaying = false;
+            this.updatePlayPauseButton();
+        }
+    }
+
+    audioWaitingHandler = () => {
+        this.updatePlayerStatus('Buffering...');
+    }
+
+    audioCanPlayHandler = () => {
+        if (this.isPlaying) {
+            this.updatePlayerStatus('Playing');
+        } else {
+            this.updatePlayerStatus('Ready to play');
+        }
+    }
+
+    // Crossfade Audio Management
+    createCrossfadeAudio() {
+        this.crossfadeAudio = document.createElement('audio');
+        this.crossfadeAudio.id = 'crossfadeAudioElement';
+        this.crossfadeAudio.preload = 'none';
+        this.crossfadeAudio.volume = 0;
+        document.body.appendChild(this.crossfadeAudio);
+        
+        // Setup event listeners for crossfade audio
+        this.crossfadeAudio.addEventListener('error', (e) => {
+            console.error('Crossfade audio error:', e);
+            this.isCrossfading = false;
+        });
+
+        this.crossfadeAudio.addEventListener('canplay', () => {
+            console.log('Crossfade audio ready to play');
+        });
+    }
+
+    async performCrossfade(newStation) {
+        if (!this.crossfadeEnabled || this.isCrossfading) {
+            console.log('Crossfade disabled or already in progress');
+            return false;
+        }
+
+        if (!this.isPlaying || !this.currentStation) {
+            console.log('No current station playing, skipping crossfade');
+            return false;
+        }
+
+        console.log(`Starting crossfade from ${this.currentStation.name} to ${newStation.name}`);
+        this.isCrossfading = true;
+
+        try {
+            // Prepare the new audio stream
+            this.crossfadeAudio.src = newStation.url;
+            this.crossfadeAudio.volume = 0;
+            
+            // Wait for the new stream to be ready
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Crossfade audio load timeout'));
+                }, 10000); // 10 second timeout
+
+                const onCanPlay = () => {
+                    clearTimeout(timeout);
+                    this.crossfadeAudio.removeEventListener('canplay', onCanPlay);
+                    this.crossfadeAudio.removeEventListener('error', onError);
+                    resolve();
+                };
+
+                const onError = (e) => {
+                    clearTimeout(timeout);
+                    this.crossfadeAudio.removeEventListener('canplay', onCanPlay);
+                    this.crossfadeAudio.removeEventListener('error', onError);
+                    reject(e);
+                };
+
+                this.crossfadeAudio.addEventListener('canplay', onCanPlay);
+                this.crossfadeAudio.addEventListener('error', onError);
+                
+                this.crossfadeAudio.load();
+            });
+
+            // Start playing the new stream at volume 0
+            await this.crossfadeAudio.play();
+
+            // Perform the crossfade
+            await this.animateCrossfade();
+
+            // Switch audio elements
+            this.swapAudioElements();
+            
+            // Update station info
+            this.currentStation = newStation;
+            this.updatePlayerInfo();
+            this.markStationAsPlaying();
+
+            console.log('Crossfade completed successfully');
+            return true;
+
+        } catch (error) {
+            console.error('Crossfade failed:', error);
+            this.isCrossfading = false;
+            // Clean up crossfade audio on error
+            this.crossfadeAudio.pause();
+            this.crossfadeAudio.src = '';
+            this.crossfadeAudio.volume = 0;
+            return false;
+        }
+    }
+
+    async animateCrossfade() {
+        return new Promise((resolve) => {
+            const startTime = Date.now();
+            const initialVolume = this.audio.volume;
+            const targetVolume = this.targetVolume || initialVolume;
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / this.crossfadeDuration, 1);
+
+                // Smooth easing function (ease-in-out)
+                const easeInOut = progress < 0.5 
+                    ? 2 * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                // Fade out current audio
+                this.audio.volume = initialVolume * (1 - easeInOut);
+                
+                // Fade in new audio
+                this.crossfadeAudio.volume = targetVolume * easeInOut;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    this.isCrossfading = false;
+                    resolve();
+                }
+            };
+
+            requestAnimationFrame(animate);
+        });
+    }
+
+    swapAudioElements() {
+        // Pause and clear the old audio
+        this.audio.pause();
+        this.audio.src = '';
+
+        // Remove event listeners from current audio element
+        this.removeAudioEventListeners(this.audio);
+
+        // Swap the audio elements
+        const tempAudio = this.audio;
+        this.audio = this.crossfadeAudio;
+        this.crossfadeAudio = tempAudio;
+
+        // Reset crossfade audio for next use
+        this.crossfadeAudio.volume = 0;
+        this.crossfadeAudio.src = '';
+
+        // Add event listeners to the new primary audio element
+        this.setupAudioEventListeners();
+
+        // Update media session if available
+        if (window.mediaSessionManager) {
+            window.mediaSessionManager.updateMetadata(this.currentStation);
+        }
     }
 
     // Station Management
@@ -403,13 +630,25 @@ class RadioApp {
     }
 
     // Audio Playback
-    playStation(station) {
+    async playStation(station) {
         if (this.currentStation && this.currentStation.id === station.id && this.isPlaying) {
             // Same station is already playing, pause it
             this.togglePlayPause();
             return;
         }
 
+        // If a station is currently playing and it's different, attempt crossfade
+        if (this.currentStation && this.currentStation.id !== station.id && this.isPlaying && this.crossfadeEnabled) {
+            const crossfadeSuccess = await this.performCrossfade(station);
+            if (crossfadeSuccess) {
+                // Crossfade completed successfully
+                return;
+            }
+            // If crossfade failed, fall through to normal playback
+            console.log('Crossfade failed, falling back to normal playback');
+        }
+
+        // Normal playback (no crossfade or crossfade failed)
         this.currentStation = station;
         this.audio.src = station.url;
         this.updatePlayerInfo();
@@ -418,11 +657,14 @@ class RadioApp {
         document.getElementById('playPauseBtn').disabled = false;
         document.getElementById('stopBtn').disabled = false;
 
-        this.audio.play().catch(error => {
+        try {
+            await this.audio.play();
+            this.markStationAsPlaying();
+        } catch (error) {
             console.error('Error playing audio:', error);
             this.updatePlayerStatus('Error playing stream');
             this.showNotification('Error playing stream. Please check the URL.');
-        });
+        }
     }
 
     togglePlayPause() {
@@ -441,9 +683,20 @@ class RadioApp {
 
     stopPlayback() {
         this.isStopping = true; // Set flag to prevent error message
+        this.isCrossfading = false; // Stop any ongoing crossfade
+        
+        // Stop both audio elements
         this.audio.pause();
         this.audio.currentTime = 0;
         this.audio.src = '';
+        
+        if (this.crossfadeAudio) {
+            this.crossfadeAudio.pause();
+            this.crossfadeAudio.currentTime = 0;
+            this.crossfadeAudio.src = '';
+            this.crossfadeAudio.volume = 0;
+        }
+        
         this.isPlaying = false;
         this.currentStation = null;
 
@@ -465,7 +718,15 @@ class RadioApp {
     }
 
     setVolume(value) {
-        this.audio.volume = value / 100;
+        const volume = value / 100;
+        this.audio.volume = volume;
+        
+        // Also update the crossfade audio volume if it's playing (during crossfade)
+        if (this.isCrossfading && this.crossfadeAudio) {
+            // During crossfade, the crossfade audio will have its volume managed by the animation
+            // But we store the target volume for when crossfade completes
+            this.targetVolume = volume;
+        }
     }
 
     // UI Updates
@@ -599,6 +860,94 @@ class RadioApp {
 
     clearAddStationForm() {
         document.getElementById('addStationForm').reset();
+    }
+
+    showSettingsModal() {
+        this.populateSettingsModal();
+        document.getElementById('settingsModal').classList.add('show');
+    }
+
+    hideSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('show');
+    }
+
+    // Settings Management
+    loadSettings() {
+        const settings = localStorage.getItem('rrradio-settings');
+        if (settings) {
+            try {
+                const parsedSettings = JSON.parse(settings);
+                this.crossfadeEnabled = parsedSettings.crossfadeEnabled !== undefined ? parsedSettings.crossfadeEnabled : true;
+                this.crossfadeDuration = parsedSettings.crossfadeDuration || 2000;
+                
+                // Apply theme preference if available
+                if (parsedSettings.themePreference) {
+                    this.setThemePreference(parsedSettings.themePreference);
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                this.setDefaultSettings();
+            }
+        } else {
+            this.setDefaultSettings();
+        }
+    }
+
+    setDefaultSettings() {
+        this.crossfadeEnabled = true;
+        this.crossfadeDuration = 2000;
+    }
+
+    saveSettings() {
+        const settings = {
+            crossfadeEnabled: this.crossfadeEnabled,
+            crossfadeDuration: this.crossfadeDuration,
+            themePreference: document.getElementById('themePreference').value
+        };
+
+        localStorage.setItem('rrradio-settings', JSON.stringify(settings));
+        this.hideSettingsModal();
+        this.showNotification('Settings saved successfully!');
+    }
+
+    resetSettings() {
+        if (confirm('Are you sure you want to reset all settings to default values?')) {
+            this.setDefaultSettings();
+            this.populateSettingsModal();
+            
+            // Reset theme to auto
+            this.setThemePreference('auto');
+            
+            this.showNotification('Settings reset to defaults');
+        }
+    }
+
+    populateSettingsModal() {
+        document.getElementById('crossfadeEnabled').checked = this.crossfadeEnabled;
+        document.getElementById('crossfadeDuration').value = this.crossfadeDuration;
+        document.getElementById('crossfadeDurationValue').textContent = (this.crossfadeDuration / 1000).toFixed(1) + 's';
+        
+        // Set theme preference
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'auto';
+        document.getElementById('themePreference').value = currentTheme;
+    }
+
+    setThemePreference(preference) {
+        // Update the theme manager if it exists
+        if (window.themeManager) {
+            if (preference === 'auto') {
+                window.themeManager.setAutoTheme();
+            } else {
+                window.themeManager.setTheme(preference);
+            }
+        } else {
+            // Fallback: set theme directly
+            if (preference === 'auto') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', preference);
+            }
+        }
     }
 
     // Utility Functions
