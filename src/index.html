@@ -36,6 +36,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Rrradio">
     
+    <!-- Enable background audio for iOS -->
+    <meta name="apple-mobile-web-app-audio" content="yes">
+    
     <!-- Android PWA Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Rrradio">
@@ -172,5 +175,131 @@
     <audio id="audioElement" preload="none"></audio>
 
     <script src="script.js"></script>
+    <script src="mediaSession.js"></script>
+    <script>
+        // Service Worker Registration for background playback
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                        
+                        // Keep service worker alive for background playback
+                        setInterval(() => {
+                            if (registration.active) {
+                                registration.active.postMessage({
+                                    type: 'KEEP_ALIVE'
+                                });
+                            }
+                        }, 25000); // Every 25 seconds
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Initialize Media Session Manager
+        let mediaSessionManager;
+
+        // Function to update page title with current station
+        function updatePageTitle(stationName = null) {
+            if (stationName) {
+                document.title = `Rrradio - ${stationName}`;
+            } else {
+                document.title = 'Rrradio';
+            }
+        }
+
+        // Listen for when a station starts playing
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioElement = document.getElementById('audioElement');
+            const currentStationName = document.getElementById('currentStationName');
+            const currentStationImage = document.getElementById('currentStationImage');
+            
+            // Initialize Media Session Manager
+            mediaSessionManager = new MediaSessionManager(audioElement);
+            
+            // Update title and media session when audio starts playing
+            audioElement.addEventListener('play', function() {
+                const stationName = currentStationName.textContent;
+                if (stationName && stationName !== 'No station playing') {
+                    updatePageTitle(stationName);
+                    mediaSessionManager.updateMetadata(stationName, currentStationImage.src);
+                    mediaSessionManager.setPlaybackState('playing');
+                    mediaSessionManager.updatePositionState();
+                }
+            });
+            
+            // Update media session when audio is paused
+            audioElement.addEventListener('pause', function() {
+                updatePageTitle();
+                mediaSessionManager.setPlaybackState('paused');
+            });
+            
+            // Clear media session when audio ends
+            audioElement.addEventListener('ended', function() {
+                updatePageTitle();
+                mediaSessionManager.clearMetadata();
+            });
+
+            // Handle media session stop event from notification
+            document.addEventListener('mediaSessionStop', function() {
+                // Trigger the same logic as your stop button
+                const stopBtn = document.getElementById('stopBtn');
+                if (stopBtn && !stopBtn.disabled) {
+                    stopBtn.click();
+                }
+            });
+
+            // Prevent audio from stopping when page loses focus
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && !audioElement.paused) {
+                    // Page is hidden but audio should keep playing
+                    console.log('Page hidden - background playback active');
+                    
+                    // Ensure media session is still active
+                    if (mediaSessionManager && mediaSessionManager.currentStation) {
+                        mediaSessionManager.setPlaybackState('playing');
+                    }
+                }
+            });
+
+            // Handle page focus to sync state
+            window.addEventListener('focus', function() {
+                if (!audioElement.paused && mediaSessionManager && mediaSessionManager.currentStation) {
+                    // Sync UI state when returning to app
+                    mediaSessionManager.setPlaybackState('playing');
+                }
+            });
+            
+            // Also listen for changes to the current station name
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                        const stationName = currentStationName.textContent;
+                        if (audioElement.paused || audioElement.ended) {
+                            updatePageTitle();
+                            if (mediaSessionManager) {
+                                mediaSessionManager.setPlaybackState('paused');
+                            }
+                        } else if (stationName && stationName !== 'No station playing') {
+                            updatePageTitle(stationName);
+                            if (mediaSessionManager) {
+                                mediaSessionManager.updateMetadata(stationName, currentStationImage.src);
+                                mediaSessionManager.setPlaybackState('playing');
+                            }
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(currentStationName, {
+                childList: true,
+                characterData: true,
+                subtree: true
+            });
+        });
+    </script>
 </body>
 </html>
