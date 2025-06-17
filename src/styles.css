@@ -981,10 +981,6 @@ body {
     .modal-body {
         padding: 20px;
     }
-    
-    .modal-footer {
-        flex-direction: column;
-    }
 }
 
 @media (max-width: 480px) {
