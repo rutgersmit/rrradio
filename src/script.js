@@ -410,6 +410,10 @@ class RadioApp {
         console.log(`Starting crossfade from ${this.currentStation.name} to ${newStation.name}`);
         this.isCrossfading = true;
 
+        // Add visual feedback for crossfading
+        this.markStationAsCrossfading(newStation);
+        this.updatePlayerStatusWithCrossfade(newStation);
+
         try {
             // Prepare the new audio stream
             this.crossfadeAudio.src = newStation.url;
@@ -455,12 +459,19 @@ class RadioApp {
             this.updatePlayerInfo();
             this.markStationAsPlaying();
 
+            // Clear crossfading visual feedback
+            this.clearCrossfadingStations();
+
             console.log('Crossfade completed successfully');
             return true;
 
         } catch (error) {
             console.error('Crossfade failed:', error);
             this.isCrossfading = false;
+            
+            // Clear crossfading visual feedback on error
+            this.clearCrossfadingStations();
+            
             // Clean up crossfade audio on error
             this.crossfadeAudio.pause();
             this.crossfadeAudio.src = '';
@@ -701,6 +712,9 @@ class RadioApp {
         this.audio.src = station.url;
         this.updatePlayerInfo();
         
+        // Clear any lingering crossfading feedback
+        this.clearCrossfadingStations();
+        
         // Enable player controls
         document.getElementById('playPauseBtn').disabled = false;
         document.getElementById('stopBtn').disabled = false;
@@ -732,6 +746,9 @@ class RadioApp {
     stopPlayback() {
         this.isStopping = true; // Set flag to prevent error message
         this.isCrossfading = false; // Stop any ongoing crossfade
+        
+        // Clear visual feedback
+        this.clearCrossfadingStations();
         
         // Stop both audio elements
         this.audio.pause();
@@ -886,6 +903,31 @@ class RadioApp {
         document.querySelectorAll('.station-card.playing').forEach(card => {
             card.classList.remove('playing');
         });
+    }
+
+    markStationAsCrossfading(station) {
+        // Remove crossfading class from all stations first
+        this.clearCrossfadingStations();
+        
+        // Add crossfading class to the target station
+        if (station) {
+            const stationCard = document.querySelector(`[data-station-id="${station.id}"]`);
+            if (stationCard) {
+                stationCard.classList.add('crossfading');
+            }
+        }
+    }
+
+    clearCrossfadingStations() {
+        document.querySelectorAll('.station-card.crossfading').forEach(card => {
+            card.classList.remove('crossfading');
+        });
+    }
+
+    updatePlayerStatusWithCrossfade(newStation) {
+        if (newStation) {
+            this.updatePlayerStatus(`Crossfading to ${newStation.name}...`);
+        }
     }
 
     // Modal Management

@@ -357,6 +357,64 @@ body {
     font-weight: 700;
 }
 
+.station-card.crossfading {
+    background: var(--card-bg);
+    border: 2px solid #ffa500;
+    position: relative;
+    overflow: hidden;
+}
+
+.station-card.crossfading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 165, 0, 0.3), 
+        transparent);
+    animation: crossfade-sweep 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+.station-card.crossfading .station-info {
+    position: relative;
+    z-index: 2;
+}
+
+.station-card.crossfading .station-info h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.station-card.crossfading .station-image-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ffa500;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes crossfade-sweep {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 @keyframes pulse-border {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
