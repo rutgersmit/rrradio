@@ -20,6 +20,13 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Update Service Worker Version
+        run: |
+          # Generate a unique timestamp for cache busting
+          TIMESTAMP=$(date +%s)
+          # Replace the cache version in service worker
+          sed -i "s/Date\.now()/$TIMESTAMP/g" src/sw.js
+          echo "Service Worker updated with timestamp: $TIMESTAMP"
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

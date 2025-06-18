@@ -21,6 +21,7 @@ A modern, responsive web radio player that lets you stream your favorite radio s
 - 🐳 **Docker Ready**: Easy deployment with Docker containerization
 - ☁️ **Azure Deployment**: Production-ready Azure Container Apps setup
 - 📲 **PWA Support**: Install as a native app on mobile devices
+- 🔄 **Automatic Updates**: Smart cache invalidation ensures users always get the latest version
 
 ## 🚀 Quick Start
 
@@ -247,6 +248,23 @@ rrradio/
 - **Real-time Controls**: Play, pause, stop, volume adjustment
 - **Error Handling**: Graceful handling of invalid streams
 - **Status Updates**: Live playback status and metadata display
+
+### Automatic Updates
+
+The app implements a smart cache invalidation system to ensure users always get the latest version:
+
+- **Service Worker Updates**: Automatically detects new versions on each visit
+- **Cache Busting**: Each deployment gets a unique timestamp to prevent stale caches
+- **User Notifications**: Shows a friendly notification when updates are available
+- **Auto-refresh**: Automatically refreshes the app after 5 seconds if user doesn't respond
+- **Network-first Strategy**: App files are fetched from network first, falling back to cache only when offline
+
+The update mechanism works by:
+
+1. Generating a unique cache key during deployment
+2. Service worker checks for updates every minute
+3. When an update is detected, users see a notification
+4. Old caches are automatically cleaned up
 
 ## 📻 Finding Radio Streams
 

@@ -1152,15 +1152,77 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Service Worker registration for offline support
+// Service Worker registration for offline support and updates
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
             .then(registration => {
                 console.log('SW registered: ', registration);
+                
+                // Check for updates every time the app loads
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('New service worker found, preparing update...');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                // New update available
+                                console.log('New app version available! Refreshing...');
+                                showUpdateNotification();
+                            }
+                        }
+                    });
+                });
+                
+                // Handle messages from service worker
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                        showUpdateNotification();
+                    }
+                });
+                
+                // Check for updates periodically
+                setInterval(() => {
+                    registration.update();
+                }, 60000); // Check every minute
             })
             .catch(registrationError => {
                 console.log('SW registration failed: ', registrationError);
             });
     });
+}
+
+// Show update notification to user
+function showUpdateNotification() {
+    // Create a simple notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-family: Arial, sans-serif;
+        cursor: pointer;
+    `;
+    notification.innerHTML = `
+        <strong>Update Available!</strong><br>
+        <small>Click to reload and get the latest version</small>
+    `;
+    
+    notification.addEventListener('click', () => {
+        window.location.reload();
+    });
+    
+    document.body.appendChild(notification);
+    
+    // Auto-reload after 5 seconds if user doesn't click
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000);
 }
