@@ -15,7 +15,7 @@ class RadioApp {
         
         // Version information
         this.version = {
-            number: '1.3.0',
+            number: '1.3.1',
             build: this.generateBuildNumber(),
             date: this.formatBuildDate(),
             codename: 'Frequency Shift'
@@ -83,49 +83,56 @@ class RadioApp {
     getDefaultStations() {
         return [
           {
-            id: "preset-1",
+            id: "preset-npo-radio-1",
             name: "NPO Radio 1",
             url: "https://www.mp3streams.nl/zender/npo-radio-1/stream/1-aac-64",
             image: "https://www.mp3streams.nl/logo/z/npo-radio-1",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-2",
+            id: "preset-npo-radio-2",
             name: "NPO Radio 2",
             url: "https://www.mp3streams.nl/zender/npo-radio-2/stream/3-aac-64",
             image: "https://www.mp3streams.nl/logo/z/npo-radio-2",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-3",
+            id: "preset-npo-3fm",
             name: "NPO 3FM",
             url: "https://www.mp3streams.nl/zender/3fm/stream/7-aac-64",
             image: "https://www.mp3streams.nl/logo/z/3fm",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-4",
+            id: "preset-kink",
             name: "KINK",
             url: "https://www.mp3streams.nl/zender/kink/stream/19-aac-128",
             image: "https://www.mp3streams.nl/logo/z/kink",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-5",
+            id: "preset-arrow-classic-rock",
+            name: "Arrow Classic Rock",
+            url: "https://www.mp3streams.nl/zender/arrow-classic-rock/stream/13-mp3-128",
+            image: "https://www.mp3streams.nl/logo/z/arrow-classic-rock",
+            dateAdded: new Date().toISOString(),
+          },
+          {
+            id: "preset-npo-radio-2-soul-jazz",
             name: "NPO Radio 2 Soul & Jazz",
             url: "https://www.mp3streams.nl/zender/npo-radio-2-soul-jazz/stream/44-mp3-192",
             image: "https://www.mp3streams.nl/logo/z/npo-radio-2-soul-jazz",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-6",
+            id: "preset-classic-nl",
             name: "Classic NL",
             url: "https://stream.classic.nl/classicnl-mindradio.mp3",
             image: "https://classic.nl/images/logo-classicnl-header.png",
             dateAdded: new Date().toISOString(),
           },
           {
-            id: "preset-7",
+            id: "preset-subasio",
             name: "Radio Subasio",
             url: "https://icy.unitedradio.it/Subasio.mp3",
             image: "https://i.imgur.com/U8zaFmv.png",
