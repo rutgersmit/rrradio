@@ -1,373 +1,397 @@
-# RRRadio - Containerized Web Application
+# 🎵 Rrradio - Modern Web Radio Player
 
-This web application has been migrated from Azure Static Web Apps to Azure Container Apps for better control and containerized deployment.
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://docker.com)
+[![Azure](https://img.shields.io/badge/Azure-Container%20Apps-blue?logo=microsoft-azure)](https://azure.microsoft.com/en-us/services/container-apps/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PWA](https://img.shields.io/badge/PWA-Ready-orange?logo=pwa)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 
-## Architecture
+A modern, responsive web radio player that lets you stream your favorite radio stations directly in your browser. Built with vanilla JavaScript and containerized for easy deployment anywhere.
 
-- **Azure Container Apps**: Hosts the containerized web application
-- **Azure Container Registry**: Stores the Docker images
-- **Azure Log Analytics**: Centralized logging and monitoring
-- **Application Insights**: Application performance monitoring
-- **Nginx**: Web server for serving static content
+![Rrradio Screenshot](screenshot.png)
 
-## Local Development
+## ✨ Features
 
-### Prerequisites
-- Docker and Docker Compose
-- Azure CLI
-- Azure Developer CLI (azd)
+- 🎵 **Stream Radio Stations**: Play your favorite radio streams directly in the browser
+- 📱 **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- 💾 **Local Storage**: All your radio stations are stored locally in your browser
+- ➕ **Station Management**: Easily add, edit, and remove radio stations
+- 📻 **Default Presets**: Comes with sample stations to get you started
+- 🎨 **Modern UI**: Beautiful gradient design with smooth animations
+- 🔊 **Full Audio Controls**: Play, pause, stop, and volume control
+- 🐳 **Docker Ready**: Easy deployment with Docker containerization
+- ☁️ **Azure Deployment**: Production-ready Azure Container Apps setup
+- 📲 **PWA Support**: Install as a native app on mobile devices
 
-### Running Locally
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
+
 ```bash
-# Using Docker Compose
-cd docker
-docker-compose up --build
+# Clone the repository
+git clone https://github.com/rutgersmit/rrradio.git
+cd rrradio
 
-# Or using the provided scripts
-./rebuild.sh
+# Run with Docker Compose
+docker compose up -d
+
+# Open your browser to http://localhost:8080
 ```
 
-The application will be available at `http://localhost:8080`
+### Option 2: Direct File Serving
 
-## Deployment to Azure
+```bash
+# Clone the repository
+git clone https://github.com/rutgersmit/rrradio.git
+cd rrradio
+
+# Serve files using any static server
+python -m http.server 8080
+# or
+npx serve -s src -l 8080
+
+# Open your browser to http://localhost:8080
+```
+
+## 🏗️ Architecture
+
+**Cloud-Native Design**: Originally built for Azure Static Web Apps, now enhanced with containerization for Azure Container Apps deployment.
+
+### Core Components
+
+- **Frontend**: Pure HTML5, CSS3, and JavaScript (no frameworks required)
+- **Container**: Nginx-based Docker container for production deployment
+- **Storage**: Browser localStorage for user data persistence
+- **Audio Engine**: HTML5 Audio API for seamless streaming
+
+### Azure Infrastructure
+
+- **Azure Container Apps**: Hosts the containerized application
+- **Azure Container Registry**: Stores Docker images
+- **Azure Log Analytics**: Centralized logging and monitoring
+- **Application Insights**: Performance monitoring and error tracking
+
+## 🚀 Deploy to Azure
+
+Want to deploy your own instance to Azure? This project includes everything you need for a production deployment.
 
 ### Prerequisites
+
 1. Azure subscription
 2. Azure CLI installed and logged in
 3. Azure Developer CLI (azd) installed
 
-### Setup Azure Resources
+### One-Click Azure Deployment
 
-1. **Create a new environment:**
+1. **Initialize your environment:**
+
    ```bash
    azd env new <environment-name>
    ```
 
-2. **Set required environment variables:**
+2. **Configure your deployment region:**
+
    ```bash
    azd env set AZURE_LOCATION <your-azure-region>
    # Example: azd env set AZURE_LOCATION eastus2
    ```
 
-3. **Deploy the infrastructure and application:**
+3. **Deploy everything with one command:**
+
    ```bash
    azd up
    ```
 
    This command will:
-   - Provision Azure resources (Container Apps Environment, Container Registry, etc.)
-   - Build and push the Docker image
+   - Provision all Azure resources (Container Apps Environment, Container Registry, etc.)
+   - Build and push the Docker image to your registry
    - Deploy the container to Azure Container Apps
+   - Set up monitoring and logging
 
-### GitHub Actions Deployment
+### CI/CD with GitHub Actions
 
-For automated deployments via GitHub Actions:
+For automated deployments, this project includes GitHub Actions workflows:
 
-1. **Set up Azure Service Principal:**
+1. **Create an Azure Service Principal:**
+
    ```bash
-   # Create service principal and get credentials
-   az ad sp create-for-rbac --name "rrradio-github-actions" --role contributor --scopes /subscriptions/<subscription-id>
+   az ad sp create-for-rbac --name "rrradio-github-actions" \
+     --role contributor \
+     --scopes /subscriptions/<subscription-id>
    ```
 
-2. **Configure GitHub Secrets:**
+2. **Configure GitHub Repository Secrets:**
    - `AZURE_CLIENT_ID`: Service principal client ID
-   - `AZURE_TENANT_ID`: Azure tenant ID
-   - `AZURE_CREDENTIALS`: Complete service principal JSON (for client credentials flow)
+   - `AZURE_TENANT_ID`: Azure tenant ID  
+   - `AZURE_CREDENTIALS`: Complete service principal JSON
 
-3. **Configure GitHub Variables:**
+3. **Configure GitHub Repository Variables:**
    - `AZURE_ENV_NAME`: Your environment name
    - `AZURE_LOCATION`: Your Azure region
    - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID
 
-4. **Push to main branch** to trigger the deployment workflow
+4. **Deploy automatically:** Push to the `main` branch to trigger deployment
 
-## Project Structure
+## 📱 How to Use
 
-```
-/
-├── src/                    # Web application source files
-├── docker/                 # Docker configuration
-│   ├── Dockerfile         # Container image definition
-│   ├── docker-compose.yml # Local development setup
-│   └── nginx.conf         # Nginx configuration
-├── infra/                 # Azure infrastructure as code
-│   ├── main.bicep        # Main Bicep template
-│   └── main.parameters.json # Parameters file
-├── .github/workflows/     # GitHub Actions workflows
-└── azure.yaml            # Azure Developer CLI configuration
-```
+### Getting Started
 
-## Monitoring and Logs
+When you first open Rrradio, you'll see 6 sample radio stations to get you started:
 
-- **Application Insights**: Monitor application performance and errors
-- **Container Apps Logs**: View container logs in Azure portal
-- **Log Analytics**: Query and analyze logs using KQL
+- **Jazz FM** - Smooth jazz for relaxing
+- **Rock Central** - Classic and modern rock hits  
+- **Classical Radio** - Beautiful classical compositions
+- **Electronic Beats** - Electronic and dance music
+- **News Radio 24/7** - Stay informed with news
+- **Chill Lounge** - Ambient and chill-out music
 
-Access logs via:
-```bash
-azd monitor --logs
-```
+*Note: Sample stations use placeholder URLs. Add your own real radio stream URLs!*
 
-## Migration Notes
+### Adding Your Own Stations
 
-This application was migrated from Azure Static Web Apps to provide:
-- Better control over the runtime environment
-- Ability to run custom server configurations
-- Enhanced monitoring and logging capabilities
-- Scalability options with Container Apps
-
-The Docker setup uses Nginx to serve static files efficiently while maintaining the same functionality as the original Static Web App.
-
-## Project Structure
-
-```
-rrradio/
-├── src/                    # Application source files
-│   ├── index.html         # Main HTML file
-│   ├── styles.css         # Application styles
-│   ├── script.js          # Application logic
-│   ├── manifest.json      # PWA manifest
-│   └── sw.js              # Service worker
-├── docker/                # Docker configuration
-│   ├── Dockerfile         # Container definition
-│   ├── docker-compose.yml # Multi-container setup
-│   └── nginx.conf         # Nginx configuration
-├── scripts/               # Development scripts
-│   ├── rebuild.sh         # Full rebuild script
-│   ├── restart.sh         # Quick restart script
-│   └── logs.sh            # View logs script
-├── rebuild.sh             # Convenience rebuild script
-├── restart.sh             # Convenience restart script
-├── logs.sh                # Convenience logs script
-└── README.md              # This file
-```
-
-## Benefits of This Structure
-
-### 🏗️ **Separation of Concerns**
-- **`src/`** - Pure application code (HTML, CSS, JS)
-- **`docker/`** - All containerization and deployment files
-- **`scripts/`** - Development and build automation scripts
-
-### 🚀 **Development Benefits**
-- Clear distinction between application code and infrastructure
-- Easy to navigate and maintain
-- Better for CI/CD pipelines (can build from `src/` only)
-- Docker files are isolated and reusable
-- Scripts can be version controlled separately
-
-### 📦 **Deployment Benefits**
-- Clean Docker builds that only include necessary files
-- Infrastructure as Code (IaC) best practices
-- Easy to adapt for different environments (dev/staging/prod)
-- Scalable for larger teams and projects
-
-## Features
-
-- 🎵 **Stream Radio Stations**: Play your favorite radio streams directly in the browser
-- 📱 **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
-- 💾 **Local Storage**: All your radio stations are stored locally in your browser
-- ➕ **Add/Remove Stations**: Easily manage your radio station collection
-- 📻 **Default Presets**: Comes with sample stations to get you started
-- 🎨 **Modern UI**: Beautiful gradient design with smooth animations
-- 🔊 **Audio Controls**: Play, pause, stop, and volume control
-- 📻 **Station Management**: Edit station details and organize your collection
-- 🐳 **Docker Ready**: Easy deployment with Docker containerization
-
-## Quick Start
-
-### Using Docker
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd rrradio
-```
-
-2. Build and run with Docker Compose:
-```bash
-docker compose up -d
-```
-
-3. Open your browser and navigate to `http://localhost:8080`
-
-#### Development Scripts
-
-For easier development, use the provided shell scripts:
-
-```bash
-# Rebuild image and restart container (use after code changes)
-./rebuild.sh
-
-# Quick restart container (without rebuilding)
-./restart.sh
-```
-
-### Manual Setup
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd rrradio
-```
-
-2. Serve the files using any static file server:
-```bash
-# Using Python
-python -m http.server 8080
-
-# Using Node.js (npx serve)
-npx serve -s . -l 8080
-
-# Using PHP
-php -S localhost:8080
-```
-
-3. Open your browser and navigate to `http://localhost:8080`
-
-## Usage
-
-### Getting Started with Default Stations
-
-When you first open Rrradio, you'll see 6 sample radio stations already loaded:
-
-- **Jazz FM** - Sample jazz station
-- **Rock Central** - Sample rock station  
-- **Classical Radio** - Sample classical station
-- **Electronic Beats** - Sample electronic station
-- **News Radio 24/7** - Sample news station
-- **Chill Lounge** - Sample chill station (no image example)
-
-*Note: These are placeholder URLs for demonstration. Replace them with real radio stream URLs.*
-
-### Adding a Radio Station
-
-1. Click the "Add Station" button
+1. Click the "**Add Station**" button
 2. Fill in the station details:
-   - **Station Name**: A friendly name for your station
-   - **Stream URL**: The direct URL to the radio stream
-   - **Image URL**: Optional image for the station
-3. Click "Add Station" to save
+   - **Station Name**: Give it a memorable name
+   - **Stream URL**: The direct URL to the radio stream (usually ends in .mp3, .m3u, or .pls)
+   - **Image URL**: Optional cover image for the station
+3. Click "**Add Station**" to save
 
-### Playing Radio Stations
+### Playing Music
 
-- Click on any station card to start playing
-- Use the audio player controls at the bottom to manage playback
-- The currently playing station will be highlighted
+- **Start Playing**: Click on any station card
+- **Control Playback**: Use the audio player controls at the bottom
+- **Switch Stations**: Click another station to switch immediately
+- **Volume Control**: Adjust volume with the slider
 
-### Managing Stations
+### Managing Your Collection
 
-- **Edit**: Click the "Edit" button on any station card
-- **Remove**: Click the "Remove" button to delete a station
-- All changes are automatically saved to your browser's local storage
+- **Edit Station**: Click the "Edit" button on any station card
+- **Remove Station**: Click "Remove" to delete a station permanently
+- **Auto-Save**: All changes are automatically saved to your browser
 
-## Docker Deployment
+## 🛠️ Development
 
-### Building the Image
-
-```bash
-docker build -t rrradio .
-```
-
-### Running the Container
+### Local Development Setup
 
 ```bash
-docker run -d -p 8080:80 --name rrradio rrradio
-```
+# Clone the repository
+git clone https://github.com/rutgersmit/rrradio.git
+cd rrradio
 
-### Using Docker Compose
-
-```bash
-# Start the application
+# For quick development, use Docker Compose
 docker compose up -d
 
-# Stop the application
-docker compose down
-
-# View logs
-docker compose logs -f
-
-# Rebuild and restart (after code changes)
-./rebuild.sh
-
-# Quick restart (without rebuilding)
-./restart.sh
+# For manual development
+cd src
+python -m http.server 8080
 ```
 
-## Technical Details
+### Development Scripts
+
+Convenient scripts for common development tasks:
+
+```bash
+# Full rebuild and restart (after code changes)
+./rebuild.sh
+
+# Quick restart without rebuilding
+./restart.sh
+
+# View application logs
+./logs.sh
+```
+
+### Project Structure
+
+```text
+rrradio/
+├── 📁 src/                     # Application source files
+│   ├── 🏠 index.html          # Main HTML file
+│   ├── 🎨 styles.css          # Application styles  
+│   ├── ⚡ script.js           # Application logic
+│   ├── 📱 manifest.json       # PWA manifest
+│   ├── 🔧 sw.js              # Service worker
+│   └── 📁 img/               # Images and icons
+├── 🐳 docker/                 # Docker configuration
+│   ├── 📋 Dockerfile          # Container definition
+│   ├── 🔧 docker-compose.yml  # Development setup
+│   └── ⚙️ nginx.conf          # Web server config
+├── ☁️ infra/                  # Azure infrastructure
+│   ├── 🏗️ main.bicep          # Infrastructure as Code
+│   └── ⚙️ main.parameters.json # Deployment parameters
+├── 🔧 scripts/               # Development helpers
+└── 📋 azure.yaml             # Azure Developer CLI config
+```
+
+## 🔧 Technical Details
+
+### Core Technologies
 
 - **Frontend**: Pure HTML5, CSS3, and JavaScript (no frameworks)
-- **Audio**: HTML5 Audio API for streaming
-- **Storage**: Browser localStorage for persistence
+- **Audio Engine**: HTML5 Audio API for streaming
+- **Storage**: Browser localStorage for data persistence
 - **Server**: Nginx (in Docker container)
-- **PWA**: Service Worker for offline support
+- **Containerization**: Docker with multi-stage builds
+- **Cloud**: Azure Container Apps for scalable hosting
 
-## Browser Compatibility
+### Browser Compatibility
 
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 11+
-- ✅ Edge 79+
+- ✅ **Chrome** 60+
+- ✅ **Firefox** 55+  
+- ✅ **Safari** 11+
+- ✅ **Edge** 79+
+- 📱 **Mobile browsers** supported
 
-## Features in Detail
+### Audio Features
 
-### Audio Player
-- HTML5 audio with streaming support
-- Volume control
-- Play/Pause/Stop functionality
-- Real-time status updates
-- Error handling for invalid streams
+- **Streaming Support**: MP3, AAC, and other HTML5-supported formats
+- **Real-time Controls**: Play, pause, stop, volume adjustment
+- **Error Handling**: Graceful handling of invalid streams
+- **Status Updates**: Live playback status and metadata display
 
-### Data Management
-- Local storage for all user data
-- Import/Export capabilities (future feature)
-- Data persistence across sessions
+## 📻 Finding Radio Streams
 
-### User Interface
-- Responsive grid layout
-- Modern glassmorphism design
-- Smooth animations and transitions
-- Touch-friendly controls
+Here are some reliable sources for radio stream URLs:
 
-## Common Radio Stream URLs
+### Public Radio Directories
 
-Here are some example stream URLs you can use to test the application:
+- **Radio-Browser.info**: Community-driven radio station database
+- **Internet-Radio.com**: Large collection of streaming stations  
+- **TuneIn**: Popular radio aggregator (check for direct stream URLs)
 
-- **BBC Radio 1**: `http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one`
-- **NPR News**: `https://npr-ice.streamguys1.com/live.mp3`
-- **Classical KUSC**: `https://kusc.streamguys1.com/kusc-hi`
+### Example Stream Formats
 
-*Note: Stream availability may vary by region and time.*
+```text
+Direct MP3: http://example.com/stream.mp3
+M3U Playlist: http://example.com/playlist.m3u
+PLS Playlist: http://example.com/stream.pls
+```
 
-## Troubleshooting
+### Testing Stream URLs
 
-### Audio Not Playing
-- Check if the stream URL is valid and accessible
-- Ensure the stream format is supported by your browser
-- Check browser console for error messages
+Always test stream URLs in your browser before adding them:
 
-### Stations Not Saving
+1. Copy the URL
+2. Paste it into a new browser tab
+3. If it starts downloading or playing, it should work in Rrradio
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### 🔇 Audio Not Playing
+
+- Verify the stream URL is accessible and valid
+- Check if the stream format is supported by your browser
+- Look for CORS issues in the browser developer console
+- Try the stream URL directly in your browser
+
+#### 💾 Stations Not Saving
+
 - Ensure localStorage is enabled in your browser
-- Check if you're in private/incognito mode
-- Clear browser cache and try again
+- Disable private/incognito browsing mode
+- Clear browser cache and cookies for the site
+- Check available storage space
 
-### Docker Issues
-- Ensure Docker is running on your system
-- Check if port 8080 is available
-- Review Docker logs: `docker-compose logs`
+#### 🐳 Docker Issues
 
-## Contributing
+- Verify Docker is running: `docker --version`
+- Check if port 8080 is available: `lsof -i :8080`
+- Review container logs: `docker compose logs -f`
+- Try rebuilding: `docker compose up --build`
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+### Getting Help
 
-## License
+If you encounter issues:
 
-This project is open source and available under the MIT License.
+1. **Check the browser console** for error messages
+2. **Verify stream URLs** work in other players
+3. **Test with different browsers** to isolate issues
+4. **Open an issue** on GitHub with detailed information
 
-## Support
+## 🤝 Contributing
 
-If you encounter any issues or have questions, please open an issue on the repository.
+We welcome contributions! Here's how to get started:
+
+### Development Setup
+
+1. **Fork and clone** the repository
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and test thoroughly
+4. **Follow the code style** (ESLint configuration coming soon)
+5. **Submit a pull request** with a clear description
+
+### Areas for Contribution
+
+- 🎨 **UI/UX improvements** and themes
+- 🔧 **New features** and functionality  
+- 🐛 **Bug fixes** and performance optimizations
+- 📱 **Mobile experience** enhancements
+- 🌍 **Internationalization** support
+- 📚 **Documentation** improvements
+
+### Code Guidelines
+
+- Use vanilla JavaScript (no frameworks)
+- Follow existing code patterns and naming conventions
+- Add comments for complex logic
+- Test your changes across different browsers
+- Update documentation as needed
+
+## 🚀 Deployment Options
+
+### Hosting Platforms
+
+**Azure Container Apps** (Recommended)
+
+- Full Azure integration with monitoring
+- Auto-scaling and load balancing  
+- Integrated CI/CD with GitHub Actions
+
+#### Docker-Compatible Platforms
+
+- Google Cloud Run
+- AWS Fargate
+- DigitalOcean App Platform
+- Railway, Render, Fly.io
+
+**Static Hosting** (Basic)
+
+- GitHub Pages
+- Netlify
+- Vercel
+- Azure Static Web Apps
+
+## 🛡️ Security & Privacy
+
+### Data Handling
+
+- **No server-side data storage**: All user data stays in your browser
+- **No tracking**: We don't collect or transmit any personal information
+- **No cookies**: Pure localStorage implementation
+- **HTTPS recommended**: Use HTTPS for production deployments
+
+### Stream Privacy
+
+- Radio streams are accessed directly by your browser
+- No proxy or intermediary servers involved
+- Streams subject to their own privacy policies
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is open source and free to use, modify, and distribute.
+
+## 🙏 Acknowledgments
+
+- **Icons**: From various open source icon libraries
+- **Inspiration**: Classic radio players and modern web design
+- **Community**: Thanks to all contributors and users!
+
+---
+
+**⭐ Star this project** if you find it useful!
+
+**🐛 Found a bug?** Please [open an issue](https://github.com/rutgersmit/rrradio/issues).
+
+**💡 Have an idea?** We'd love to hear about it in [discussions](https://github.com/rutgersmit/rrradio/discussions).
