@@ -15,7 +15,7 @@ class RadioApp {
         
         // Version information
         this.version = {
-            number: '1.3.1',
+            number: '1.3.2',
             build: this.generateBuildNumber(),
             date: this.formatBuildDate(),
             codename: 'Frequency Shift'
@@ -775,7 +775,7 @@ class RadioApp {
         // Reset player UI
         document.getElementById('currentStationName').textContent = 'No station playing';
         document.getElementById('playerStatus').textContent = 'Stopped';
-        document.getElementById('currentStationImage').src = 'img/station_placeholder.png';
+        document.getElementById('currentStationImage').src = 'img/station_placeholder.svg';
         document.getElementById('playPauseBtn').disabled = true;
         document.getElementById('stopBtn').disabled = true;
 
@@ -821,10 +821,10 @@ class RadioApp {
                     ${station.image ? 
                         `<img src="${station.image}" alt="${station.name}" class="station-image" onerror="app.handleImageError(this)">
                          <div class="station-image-placeholder" style="display: none;">
-                             <img src="img/station_placeholder.png" alt="Station placeholder" class="placeholder-image">
+                             <img src="img/station_placeholder.svg" alt="Station placeholder" class="placeholder-image">
                          </div>` :
                         `<div class="station-image-placeholder">
-                             <img src="img/station_placeholder.png" alt="Station placeholder" class="placeholder-image">
+                             <img src="img/station_placeholder.svg" alt="Station placeholder" class="placeholder-image">
                          </div>`
                     }
                 </div>
@@ -873,7 +873,7 @@ class RadioApp {
             imageElement.src = this.currentStation.image;
             imageElement.style.display = 'block';
         } else {
-            imageElement.src = 'img/station_placeholder.png';
+            imageElement.src = 'img/station_placeholder.svg';
             imageElement.style.display = 'block';
         }
     }

@@ -13,7 +13,7 @@ const urlsToCache = [
     '/img/icon-32.png',
     '/img/icon-192.png',
     '/img/icon-512.png',
-    '/img/station_placeholder.png',
+    '/img/station_placeholder.svg',
     '/img/favicon.ico',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
