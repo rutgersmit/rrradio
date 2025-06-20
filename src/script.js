@@ -15,7 +15,7 @@ class RadioApp {
         
         // Version information
         this.version = {
-            number: '1.3.2',
+            number: '1.3.3',
             build: this.generateBuildNumber(),
             date: this.formatBuildDate(),
             codename: 'Frequency Shift'
@@ -41,6 +41,12 @@ class RadioApp {
             localStorage.removeItem('rrradio-stations');
             console.log('Cleared stored stations. Refresh the page to load default presets.');
         };
+        
+        // Make the app instance globally accessible for the update notification
+        window.radioApp = this;
+        
+        // Check if we need to restore playback state after an update reload
+        this.restorePlaybackStateAfterUpdate();
     }
 
     // Local Storage Management
@@ -1074,6 +1080,34 @@ class RadioApp {
             day: 'numeric'
         });
     }
+    
+    // Restore playback state after update
+    restorePlaybackStateAfterUpdate() {
+        // Check if we were playing a station before the update
+        const wasPlaying = sessionStorage.getItem('rrradio-playing-before-update');
+        if (wasPlaying === 'true') {
+            const lastStationId = sessionStorage.getItem('rrradio-last-station-id');
+            if (lastStationId) {
+                console.log('Restoring playback after update for station:', lastStationId);
+                
+                // Find the station in our list
+                const stationToPlay = this.stations.find(station => station.id === lastStationId);
+                if (stationToPlay) {
+                    // Slight delay to ensure DOM is ready
+                    setTimeout(() => {
+                        this.playStation(stationToPlay);
+                        
+                        // Show a brief notification that playback has been restored
+                        this.showNotification('Playback restored after update');
+                    }, 1000);
+                }
+            }
+            
+            // Clear the session storage items
+            sessionStorage.removeItem('rrradio-playing-before-update');
+            sessionStorage.removeItem('rrradio-last-station-id');
+        }
+    }
 
     setThemePreference(preference) {
         // Update the theme manager if it exists
@@ -1223,16 +1257,23 @@ function showUpdateNotification() {
     `;
     notification.innerHTML = `
         <strong>Update Available!</strong><br>
-        <small>Click to reload and get the latest version</small>
+        <small>Click to reload when ready (your playback will continue after reload)</small>
     `;
     
+    // Store the current playing state and station before reload
     notification.addEventListener('click', () => {
+        // Save current playing state and station ID in sessionStorage
+        const app = window.radioApp;
+        if (app && app.isPlaying && app.currentStation) {
+            sessionStorage.setItem('rrradio-playing-before-update', 'true');
+            sessionStorage.setItem('rrradio-last-station-id', app.currentStation.id);
+        }
         window.location.reload();
     });
     
     document.body.appendChild(notification);
     
     // Previously the app would auto refresh after a short delay which
-    // interrupted playback.  We now only show the notification and let the
+    // interrupted playback. We now only show the notification and let the
     // user decide when to reload so playback continues uninterrupted.
 }
