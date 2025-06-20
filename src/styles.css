@@ -350,11 +350,17 @@ body {
 
 /* Stations grid */
 .stations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     padding: 20px 0;
     overflow: visible;
+}
+
+.station-card {
+    flex: 1 0 200px;
+    max-width: 350px;
+    min-width: 200px;
 }
 
 /* Station card */
@@ -1142,6 +1148,47 @@ body {
     transform: scale(1.05);
 }
 
+/* Drag and drop styles */
+.drag-handle {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    background-color: rgba(var(--accent-color-rgb), 0.2);
+}
+
+.station-card {
+    position: relative;
+}
+
+.station-card.dragging {
+    opacity: 0.7;
+    cursor: grabbing;
+    transform: scale(0.95);
+    z-index: 1000;
+    box-shadow: 0 15px 30px rgba(var(--accent-color-rgb), 0.3);
+    background: linear-gradient(to bottom, rgba(var(--accent-color-rgb), 0.05), var(--card-bg));
+}
+
+.station-card.drag-over {
+    border: 2px dashed var(--accent-color);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -1179,8 +1226,12 @@ body {
     }
     
     .stations-grid {
-        grid-template-columns: 1fr;
         gap: 20px;
+    }
+    
+    .station-card {
+        flex: 1 0 100%;
+        max-width: 100%;
     }
     
     .audio-player {

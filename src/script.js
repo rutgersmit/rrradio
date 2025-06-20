@@ -828,11 +828,17 @@ class RadioApp {
             return;
         }
 
-        container.style.display = 'grid';
+        // Change display from grid to flex for draggable layout
+        container.style.display = 'flex';
+        container.style.flexWrap = 'wrap';
+        container.style.alignItems = 'flex-start';
         noStationsMessage.style.display = 'none';
 
         container.innerHTML = this.stations.map(station => `
-            <div class="station-card" data-station-id="${station.id}">
+            <div class="station-card" data-station-id="${station.id}" draggable="true">
+                <div class="drag-handle" title="Drag to reorder">
+                    <i class="fas fa-grip-lines"></i>
+                </div>
                 <div class="station-image-container">
                     ${station.image ? 
                         `<img src="${station.image}" alt="${station.name}" class="station-image" onerror="app.handleImageError(this)">
@@ -868,7 +874,7 @@ class RadioApp {
         // Add click listeners to station cards
         container.querySelectorAll('.station-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.station-actions')) {
+                if (!e.target.closest('.station-actions') && !e.target.closest('.drag-handle')) {
                     const stationId = card.dataset.stationId;
                     const station = this.stations.find(s => s.id === stationId);
                     if (station) {
@@ -876,6 +882,81 @@ class RadioApp {
                     }
                 }
             });
+            
+            // Add drag-and-drop event listeners
+            this.setupDragHandlers(card);
+        });
+    }
+
+    setupDragHandlers(card) {
+        card.addEventListener('dragstart', (e) => {
+            // Set the data being dragged and add a dragging class
+            e.dataTransfer.setData('text/plain', card.dataset.stationId);
+            card.classList.add('dragging');
+            
+            // Set drag image to the card itself
+            // Slight delay to allow the dragging class to take effect
+            setTimeout(() => {
+                e.dataTransfer.setDragImage(card, 20, 20);
+            }, 0);
+        });
+
+        card.addEventListener('dragend', () => {
+            // Remove the dragging class
+            card.classList.remove('dragging');
+            
+            // Remove drag-over class from all cards
+            document.querySelectorAll('.station-card').forEach(c => {
+                c.classList.remove('drag-over');
+            });
+        });
+
+        card.addEventListener('dragover', (e) => {
+            // Allow dropping
+            e.preventDefault();
+        });
+
+        card.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            // Style the potential drop target
+            if (!card.classList.contains('dragging')) {
+                card.classList.add('drag-over');
+            }
+        });
+
+        card.addEventListener('dragleave', () => {
+            // Remove drop target styling
+            card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.classList.remove('drag-over');
+            
+            // Get the dragged station ID
+            const draggedStationId = e.dataTransfer.getData('text/plain');
+            const targetStationId = card.dataset.stationId;
+            
+            if (draggedStationId === targetStationId) return;
+            
+            // Find indices of both stations
+            const draggedIndex = this.stations.findIndex(s => s.id === draggedStationId);
+            const targetIndex = this.stations.findIndex(s => s.id === targetStationId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // Reorder the stations array
+            const [draggedStation] = this.stations.splice(draggedIndex, 1);
+            this.stations.splice(targetIndex, 0, draggedStation);
+            
+            // Save the reordered stations to storage
+            this.saveStations();
+            
+            // Re-render all the stations with the new order
+            this.renderStations();
+            
+            // Show a notification of the reordering
+            this.showNotification('Station order updated');
         });
     }
 
@@ -1285,93 +1366,5 @@ document.addEventListener('click', (event) => {
             if (stationCard) {
                 stationCard.classList.remove('menu-active');
             }
-        });
-    }
-});
 
-// Service Worker registration for offline support and updates
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-                // Store registration for later use (e.g. sending messages)
-                window.swRegistration = registration;
-                
-                // Check for updates every time the app loads
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    console.log('New service worker found, preparing update...');
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                // New update available
-                                console.log('New app version available! Refreshing...');
-                                showUpdateNotification();
-                            }
-                        }
-                    });
-                });
-                
-                // Handle messages from service worker
-                navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
-                        showUpdateNotification();
-                    }
-                });
-                
-                // Check for updates periodically
-                setInterval(() => {
-                    registration.update();
-                }, 60000); // Check every minute
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
 
-// Show update notification to user
-function showUpdateNotification() {
-    // Create a simple notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 5px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        font-family: Arial, sans-serif;
-        cursor: pointer;
-    `;
-    notification.innerHTML = `
-        <strong>Update Available!</strong><br>
-        <small>Click to reload when ready</small>
-    `;
-    
-    // Store the current playing state and station before reload
-    notification.addEventListener('click', () => {
-        // Save current playing state and station ID in sessionStorage
-        const app = window.radioApp;
-        if (app && app.isPlaying && app.currentStation) {
-            sessionStorage.setItem('rrradio-playing-before-update', 'true');
-            sessionStorage.setItem('rrradio-last-station-id', app.currentStation.id);
-        }
-        // Activate waiting service worker so the latest version loads
-        if (window.swRegistration && window.swRegistration.waiting) {
-            window.swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-        window.location.reload();
-    });
-    
-    document.body.appendChild(notification);
-    
-    // Previously the app would auto refresh after a short delay which
-    // interrupted playback. We now show the notification and let the
-    // user decide when to reload.
-}
