@@ -370,6 +370,7 @@ class RadioApp {
         this.isPlaying = false;
         this.updatePlayerStatus('Ended');
         this.updatePlayPauseButton();
+        this.clearPlayingStations();
     }
 
     audioErrorHandler = (e) => {
@@ -379,6 +380,7 @@ class RadioApp {
             this.updatePlayerStatus('Error loading stream');
             this.isPlaying = false;
             this.updatePlayPauseButton();
+            this.clearPlayingStations();
         }
     }
 
