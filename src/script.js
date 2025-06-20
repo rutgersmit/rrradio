@@ -1334,7 +1334,9 @@ class RadioApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }    showNotification(message, duration = 3000) {
+    }
+    
+    showNotification(message, duration = 3000) {
         // Create a simple notification
         const notification = document.createElement('div');
         notification.style.cssText = `
