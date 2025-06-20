@@ -1223,16 +1223,64 @@ class RadioApp {
         this.version.isBeta = isBeta;
 
         if (isBeta) {
+            // Show beta indicator
             const indicator = document.getElementById('betaIndicator');
             if (indicator) {
                 indicator.style.display = 'inline-block';
             }
+            
+            // Switch to beta icons
+            this.updateIconsForBeta();
             
             // Show beta info notification if this is their first visit to beta
             if (!localStorage.getItem('rrradio-beta-info-shown')) {
                 this.showBetaInfo();
                 localStorage.setItem('rrradio-beta-info-shown', 'true');
             }
+        }
+    }
+    
+    updateIconsForBeta() {
+        console.log('Switching to beta icons');
+        
+        // Update favicon
+        const faviconLink = document.querySelector('link[rel="icon"][type="image/x-icon"]');
+        if (faviconLink) {
+            faviconLink.href = 'img/favicon-beta.ico';
+        }
+        
+        // Update all PNG icons (16px, 32px, 192px, 512px)
+        const pngIcons = document.querySelectorAll('link[rel="icon"][type="image/png"]');
+        pngIcons.forEach(icon => {
+            const size = icon.getAttribute('sizes');
+            if (size) {
+                const newIconPath = icon.href.replace(/icon-(\d+)\.png/, 'icon-$1-beta.png');
+                icon.href = newIconPath;
+            }
+        });
+        
+        // Update Apple touch icons
+        const appleIcons = document.querySelectorAll('link[rel="apple-touch-icon"]');
+        appleIcons.forEach(icon => {
+            if (icon.href.includes('icon-apple-touch-icon')) {
+                icon.href = 'img/icon-apple-touch-icon-beta.png';
+            } else if (icon.href.includes('256x256')) {
+                icon.href = 'img/256x256-beta.png';
+            } else {
+                const newIconPath = icon.href.replace(/icon-(\d+)\.png/, 'icon-$1-beta.png');
+                icon.href = newIconPath;
+            }
+        });
+        
+        // Update Open Graph and Twitter image references
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage) {
+            ogImage.content = 'img/icon-512-beta.png';
+        }
+        
+        const twitterImage = document.querySelector('meta[name="twitter:image"]');
+        if (twitterImage) {
+            twitterImage.content = 'img/icon-512-beta.png';
         }
     }
     
@@ -1253,8 +1301,9 @@ class RadioApp {
             max-width: 300px;
         `;
         notification.innerHTML = `
-            <strong>Welcome to Rrradio Beta!</strong><br>
+            <strong><i class="fas fa-flask"></i> Welcome to Rrradio Beta!</strong><br>
             <small>You're using a beta version with experimental features. 
+            Notice the beta icons and indicator showing you're on the cutting edge.
             Please report any issues you encounter.</small>
             <div style="margin-top: 10px; text-align: right;">
                 <button id="closeBetaNotification" style="
