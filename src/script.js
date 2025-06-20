@@ -1231,8 +1231,7 @@ function showUpdateNotification() {
     
     document.body.appendChild(notification);
     
-    // Auto-reload after 5 seconds if user doesn't click
-    setTimeout(() => {
-        window.location.reload();
-    }, 5000);
+    // Previously the app would auto refresh after a short delay which
+    // interrupted playback.  We now only show the notification and let the
+    // user decide when to reload so playback continues uninterrupted.
 }
