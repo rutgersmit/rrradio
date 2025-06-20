@@ -20,8 +20,7 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
     console.log('Service Worker installing with cache:', CACHE_NAME);
-    // Force the waiting service worker to become the active service worker
-    self.skipWaiting();
+    // Do not call skipWaiting here so the new worker activates only after the user reloads
     
     event.waitUntil(
         caches.open(CACHE_NAME)

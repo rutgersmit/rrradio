@@ -1203,6 +1203,8 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(registration => {
                 console.log('SW registered: ', registration);
+                // Store registration for later use (e.g. sending messages)
+                window.swRegistration = registration;
                 
                 // Check for updates every time the app loads
                 registration.addEventListener('updatefound', () => {
@@ -1257,7 +1259,7 @@ function showUpdateNotification() {
     `;
     notification.innerHTML = `
         <strong>Update Available!</strong><br>
-        <small>Click to reload when ready (your playback will continue after reload)</small>
+        <small>Click to reload when ready</small>
     `;
     
     // Store the current playing state and station before reload
@@ -1268,12 +1270,16 @@ function showUpdateNotification() {
             sessionStorage.setItem('rrradio-playing-before-update', 'true');
             sessionStorage.setItem('rrradio-last-station-id', app.currentStation.id);
         }
+        // Activate waiting service worker so the latest version loads
+        if (window.swRegistration && window.swRegistration.waiting) {
+            window.swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
         window.location.reload();
     });
     
     document.body.appendChild(notification);
     
     // Previously the app would auto refresh after a short delay which
-    // interrupted playback. We now only show the notification and let the
-    // user decide when to reload so playback continues uninterrupted.
+    // interrupted playback. We now show the notification and let the
+    // user decide when to reload.
 }
