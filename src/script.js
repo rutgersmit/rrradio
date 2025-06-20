@@ -54,38 +54,46 @@ class RadioApp {
 
     // Local Storage Management
     loadStations() {
-        const stored = localStorage.getItem('rrradio-stations');
-        console.log('Raw localStorage value:', stored);
-        
-        if (stored && stored !== 'null' && stored !== 'undefined') {
-            try {
-                const parsedStations = JSON.parse(stored);
-                console.log('Loaded stations from localStorage:', parsedStations);
-                
-                // Check if parsed stations is a valid array with content
-                if (Array.isArray(parsedStations) && parsedStations.length > 0) {
-                    return parsedStations;
-                } else {
-                    console.log('Parsed stations is empty or invalid, loading defaults');
-                    // If empty array or invalid, load defaults
+        console.log('Starting loadStations method');
+        try {
+            const stored = localStorage.getItem('rrradio-stations');
+            console.log('Raw localStorage value:', stored);
+            
+            if (stored && stored !== 'null' && stored !== 'undefined') {
+                try {
+                    const parsedStations = JSON.parse(stored);
+                    console.log('Loaded stations from localStorage:', parsedStations);
+                    
+                    // Check if parsed stations is a valid array with content
+                    if (Array.isArray(parsedStations) && parsedStations.length > 0) {
+                        console.log('Returning parsed stations:', parsedStations.length, 'stations found');
+                        return parsedStations;
+                    } else {
+                        console.log('Parsed stations is empty or invalid, loading defaults');
+                        // If empty array or invalid, load defaults
+                        const defaultStations = this.getDefaultStations();
+                        this.saveStationsToStorage(defaultStations);
+                        return defaultStations;
+                    }
+                } catch (error) {
+                    console.error('Error parsing stored stations:', error);
+                    // If JSON parse fails, load defaults
                     const defaultStations = this.getDefaultStations();
                     this.saveStationsToStorage(defaultStations);
                     return defaultStations;
                 }
-            } catch (error) {
-                console.error('Error parsing stored stations:', error);
-                // If JSON parse fails, load defaults
+            } else {
+                // Return default preset stations if no saved stations exist
                 const defaultStations = this.getDefaultStations();
+                console.log('No saved stations found, loading default presets:', defaultStations);
+                // Save the default stations to localStorage so they persist
                 this.saveStationsToStorage(defaultStations);
                 return defaultStations;
             }
-        } else {
-            // Return default preset stations if no saved stations exist
-            const defaultStations = this.getDefaultStations();
-            console.log('No saved stations found, loading default presets:', defaultStations);
-            // Save the default stations to localStorage so they persist
-            this.saveStationsToStorage(defaultStations);
-            return defaultStations;
+        } catch (e) {
+            console.error('Critical error in loadStations:', e);
+            // Last resort fallback
+            return this.getDefaultStations();
         }
     }
 
@@ -1059,12 +1067,33 @@ class RadioApp {
     }
 
     showSettingsModal() {
-        this.populateSettingsModal();
-        document.getElementById('settingsModal').classList.add('show');
+        console.log('Showing settings modal');
+        try {
+            this.populateSettingsModal();
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.classList.add('show');
+                console.log('Settings modal displayed');
+            } else {
+                console.error('Settings modal element not found');
+            }
+        } catch (e) {
+            console.error('Error showing settings modal:', e);
+        }
     }
 
     hideSettingsModal() {
-        document.getElementById('settingsModal').classList.remove('show');
+        console.log('Hiding settings modal');
+        try {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.classList.remove('show');
+            } else {
+                console.error('Settings modal element not found');
+            }
+        } catch (e) {
+            console.error('Error hiding settings modal:', e);
+        }
     }
 
     // Settings Management
@@ -1366,5 +1395,6 @@ document.addEventListener('click', (event) => {
             if (stationCard) {
                 stationCard.classList.remove('menu-active');
             }
-
-
+        });
+    }
+});
