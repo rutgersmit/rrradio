@@ -1094,7 +1094,22 @@ class RadioApp {
         const params = new URLSearchParams(window.location.search);
         const hasBetaParam = params.has('beta');
         const hostHasBeta = window.location.hostname.toLowerCase().includes('beta');
-        const isBeta = hasBetaParam || hostHasBeta;
+        
+        // Get beta status from localStorage if set by the server
+        const storedBetaStatus = localStorage.getItem('rrradio-is-beta') === 'true';
+        
+        // Check if we're in a development environment
+        const isDev = window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1' ||
+                     window.location.hostname.includes('.local');
+                     
+        // On first load in dev environment, set beta flag in localStorage
+        if (isDev && localStorage.getItem('rrradio-is-beta') === null) {
+            // This could be enhanced to actually check the Git branch via a server endpoint
+            localStorage.setItem('rrradio-is-beta', 'true');
+        }
+        
+        const isBeta = hasBetaParam || hostHasBeta || storedBetaStatus;
         this.version.isBeta = isBeta;
 
         if (isBeta) {
@@ -1102,7 +1117,60 @@ class RadioApp {
             if (indicator) {
                 indicator.style.display = 'inline-block';
             }
+            
+            // Show beta info notification if this is their first visit to beta
+            if (!localStorage.getItem('rrradio-beta-info-shown')) {
+                this.showBetaInfo();
+                localStorage.setItem('rrradio-beta-info-shown', 'true');
+            }
         }
+    }
+    
+    showBetaInfo() {
+        // Create a notification for beta info
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
+            max-width: 300px;
+        `;
+        notification.innerHTML = `
+            <strong>Welcome to Rrradio Beta!</strong><br>
+            <small>You're using a beta version with experimental features. 
+            Please report any issues you encounter.</small>
+            <div style="margin-top: 10px; text-align: right;">
+                <button id="closeBetaNotification" style="
+                    background: rgba(255,255,255,0.2); 
+                    border: none; 
+                    color: white; 
+                    padding: 5px 10px; 
+                    border-radius: 4px; 
+                    cursor: pointer;
+                ">OK, Got it</button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Add event listener to close button
+        document.getElementById('closeBetaNotification').addEventListener('click', () => {
+            document.body.removeChild(notification);
+        });
+        
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 10000);
     }
     
     // Restore playback state after update
