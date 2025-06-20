@@ -465,6 +465,7 @@ class RadioApp {
             this.currentStation = newStation;
             this.updatePlayerInfo();
             this.markStationAsPlaying();
+            this.updatePlayerStatus('Playing');
 
             // Clear crossfading visual feedback
             this.clearCrossfadingStations();
