@@ -216,11 +216,11 @@ rrradio/
 │   ├── 📋 Dockerfile          # Container definition
 │   ├── 🔧 docker-compose.yml  # Development setup
 │   └── ⚙️ nginx.conf          # Web server config
-├── ☁️ infra/                  # Azure infrastructure
-│   ├── 🏗️ main.bicep          # Infrastructure as Code
-│   └── ⚙️ main.parameters.json # Deployment parameters
 ├── 🔧 scripts/               # Development helpers
-└── 📋 azure.yaml             # Azure Developer CLI config
+├── 📝 logs.sh                # View container logs
+├── ♻️ rebuild.sh             # Rebuild container
+├── 🔄 restart.sh             # Restart container
+└── 🖼️ screenshot.png         # Application screenshot
 ```
 
 ## 🔧 Technical Details
