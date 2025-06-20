@@ -1,7 +1,6 @@
 # 🎵 Rrradio - Modern Web Radio Player
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://docker.com)
-[![Azure](https://img.shields.io/badge/Azure-Container%20Apps-blue?logo=microsoft-azure)](https://azure.microsoft.com/en-us/services/container-apps/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PWA](https://img.shields.io/badge/PWA-Ready-orange?logo=pwa)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 
@@ -19,7 +18,7 @@ A modern, responsive web radio player that lets you stream your favorite radio s
 - 🎨 **Modern UI**: Beautiful gradient design with smooth animations
 - 🔊 **Full Audio Controls**: Play, pause, stop, and volume control
 - 🐳 **Docker Ready**: Easy deployment with Docker containerization
-- ☁️ **Azure Deployment**: Production-ready Azure Container Apps setup
+- ☁️ **Container Deployment**: Ready for any container host
 - 📲 **PWA Support**: Install as a native app on mobile devices
 - 🔄 **Automatic Updates**: Smart cache invalidation ensures users always get the latest version
 
@@ -55,7 +54,7 @@ npx serve -s src -l 8080
 
 ## 🏗️ Architecture
 
-**Cloud-Native Design**: Originally built for Azure Static Web Apps, now enhanced with containerization for Azure Container Apps deployment.
+**Cloud-Native Design**: Originally built for Azure Static Web Apps, now containerized for deployment anywhere.
 
 ### Core Components
 
@@ -64,73 +63,8 @@ npx serve -s src -l 8080
 - **Storage**: Browser localStorage for user data persistence
 - **Audio Engine**: HTML5 Audio API for seamless streaming
 
-### Azure Infrastructure
-
-- **Azure Container Apps**: Hosts the containerized application
-- **Azure Container Registry**: Stores Docker images
-- **Azure Log Analytics**: Centralized logging and monitoring
-- **Application Insights**: Performance monitoring and error tracking
-
-## 🚀 Deploy to Azure
-
-Want to deploy your own instance to Azure? This project includes everything you need for a production deployment.
-
-### Prerequisites
-
-1. Azure subscription
-2. Azure CLI installed and logged in
-3. Azure Developer CLI (azd) installed
-
-### One-Click Azure Deployment
-
-1. **Initialize your environment:**
-
-   ```bash
-   azd env new <environment-name>
-   ```
-
-2. **Configure your deployment region:**
-
-   ```bash
-   azd env set AZURE_LOCATION <your-azure-region>
-   # Example: azd env set AZURE_LOCATION eastus2
-   ```
-
-3. **Deploy everything with one command:**
-
-   ```bash
-   azd up
-   ```
-
-   This command will:
-   - Provision all Azure resources (Container Apps Environment, Container Registry, etc.)
-   - Build and push the Docker image to your registry
-   - Deploy the container to Azure Container Apps
-   - Set up monitoring and logging
-
-### CI/CD with GitHub Actions
-
-For automated deployments, this project includes GitHub Actions workflows:
-
-1. **Create an Azure Service Principal:**
-
-   ```bash
-   az ad sp create-for-rbac --name "rrradio-github-actions" \
-     --role contributor \
-     --scopes /subscriptions/<subscription-id>
-   ```
-
-2. **Configure GitHub Repository Secrets:**
-   - `AZURE_CLIENT_ID`: Service principal client ID
-   - `AZURE_TENANT_ID`: Azure tenant ID  
-   - `AZURE_CREDENTIALS`: Complete service principal JSON
-
-3. **Configure GitHub Repository Variables:**
-   - `AZURE_ENV_NAME`: Your environment name
-   - `AZURE_LOCATION`: Your Azure region
-   - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID
-
-4. **Deploy automatically:** Push to the `main` branch to trigger deployment
+### CI/CD
+A sample GitHub Actions workflow deploys the app to Azure Static Web Apps.
 
 ## 📱 How to Use
 
@@ -232,7 +166,7 @@ rrradio/
 - **Storage**: Browser localStorage for data persistence
 - **Server**: Nginx (in Docker container)
 - **Containerization**: Docker with multi-stage builds
-- **Cloud**: Azure Container Apps for scalable hosting
+- **Cloud**: Any container host for scalable deployment
 
 ### Browser Compatibility
 
@@ -359,11 +293,9 @@ We welcome contributions! Here's how to get started:
 
 ### Hosting Platforms
 
-**Azure Container Apps** (Recommended)
-
-- Full Azure integration with monitoring
-- Auto-scaling and load balancing  
-- Integrated CI/CD with GitHub Actions
+**Container Platforms** (Recommended)
+- Run the container on your preferred cloud platform
+- CI/CD with GitHub Actions
 
 #### Docker-Compatible Platforms
 
