@@ -18,8 +18,11 @@ class RadioApp {
             number: '1.3.3',
             build: this.generateBuildNumber(),
             date: this.formatBuildDate(),
-            codename: 'Frequency Shift'
+            codename: 'Frequency Shift',
+            isBeta: false
         };
+
+        this.detectBetaEnvironment();
         
         this.initializeEventListeners();
         this.renderStations();
@@ -296,7 +299,8 @@ class RadioApp {
     }
     
     showVersionDetails() {
-        const detailedInfo = `🎵 Rrradio v${this.version.number} "${this.version.codename}" - Built with ❤️ for radio lovers!`;
+        const betaText = this.version.isBeta ? ' Beta' : '';
+        const detailedInfo = `🎵 Rrradio v${this.version.number}${betaText} "${this.version.codename}" - Built with ❤️ for radio lovers!`;
         this.showNotification(detailedInfo, 5000); // Show for 5 seconds
         
         // Also log detailed info to console
@@ -1049,13 +1053,16 @@ class RadioApp {
         const appVersionEl = document.getElementById('appVersion');
         const buildNumberEl = document.getElementById('buildNumber');
         const buildDateEl = document.getElementById('buildDate');
-        
-        if (appVersionEl) appVersionEl.textContent = this.version.number;
+
+        if (appVersionEl) {
+            appVersionEl.textContent = this.version.number + (this.version.isBeta ? ' (beta)' : '');
+        }
         if (buildNumberEl) buildNumberEl.textContent = this.version.build;
         if (buildDateEl) buildDateEl.textContent = this.version.date;
         
         // Add version info to console for debugging
-        console.log(`Rrradio v${this.version.number} (${this.version.codename}) - Build ${this.version.build}`);
+        const betaFlag = this.version.isBeta ? ' beta' : '';
+        console.log(`Rrradio v${this.version.number}${betaFlag} (${this.version.codename}) - Build ${this.version.build}`);
     }
     
     generateBuildNumber() {
@@ -1074,11 +1081,26 @@ class RadioApp {
     formatBuildDate() {
         // Format the current date for display
         const now = new Date();
-        return now.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
+        return now.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
             day: 'numeric'
         });
+    }
+
+    detectBetaEnvironment() {
+        const params = new URLSearchParams(window.location.search);
+        const hasBetaParam = params.has('beta');
+        const hostHasBeta = window.location.hostname.toLowerCase().includes('beta');
+        const isBeta = hasBetaParam || hostHasBeta;
+        this.version.isBeta = isBeta;
+
+        if (isBeta) {
+            const indicator = document.getElementById('betaIndicator');
+            if (indicator) {
+                indicator.style.display = 'inline-block';
+            }
+        }
     }
     
     // Restore playback state after update
