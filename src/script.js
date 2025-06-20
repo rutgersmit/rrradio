@@ -542,7 +542,10 @@ class RadioApp {
 
         // Update media session if available
         if (window.mediaSessionManager) {
-            window.mediaSessionManager.updateMetadata(this.currentStation);
+            window.mediaSessionManager.updateMetadata(
+                this.currentStation.name,
+                this.currentStation.image
+            );
         }
     }
 
