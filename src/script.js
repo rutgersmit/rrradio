@@ -18,8 +18,11 @@ class RadioApp {
             number: '1.3.3',
             build: this.generateBuildNumber(),
             date: this.formatBuildDate(),
-            codename: 'Frequency Shift'
+            codename: 'Frequency Shift',
+            isBeta: false
         };
+
+        this.detectBetaEnvironment();
         
         this.initializeEventListeners();
         this.renderStations();
@@ -51,38 +54,46 @@ class RadioApp {
 
     // Local Storage Management
     loadStations() {
-        const stored = localStorage.getItem('rrradio-stations');
-        console.log('Raw localStorage value:', stored);
-        
-        if (stored && stored !== 'null' && stored !== 'undefined') {
-            try {
-                const parsedStations = JSON.parse(stored);
-                console.log('Loaded stations from localStorage:', parsedStations);
-                
-                // Check if parsed stations is a valid array with content
-                if (Array.isArray(parsedStations) && parsedStations.length > 0) {
-                    return parsedStations;
-                } else {
-                    console.log('Parsed stations is empty or invalid, loading defaults');
-                    // If empty array or invalid, load defaults
+        console.log('Starting loadStations method');
+        try {
+            const stored = localStorage.getItem('rrradio-stations');
+            console.log('Raw localStorage value:', stored);
+            
+            if (stored && stored !== 'null' && stored !== 'undefined') {
+                try {
+                    const parsedStations = JSON.parse(stored);
+                    console.log('Loaded stations from localStorage:', parsedStations);
+                    
+                    // Check if parsed stations is a valid array with content
+                    if (Array.isArray(parsedStations) && parsedStations.length > 0) {
+                        console.log('Returning parsed stations:', parsedStations.length, 'stations found');
+                        return parsedStations;
+                    } else {
+                        console.log('Parsed stations is empty or invalid, loading defaults');
+                        // If empty array or invalid, load defaults
+                        const defaultStations = this.getDefaultStations();
+                        this.saveStationsToStorage(defaultStations);
+                        return defaultStations;
+                    }
+                } catch (error) {
+                    console.error('Error parsing stored stations:', error);
+                    // If JSON parse fails, load defaults
                     const defaultStations = this.getDefaultStations();
                     this.saveStationsToStorage(defaultStations);
                     return defaultStations;
                 }
-            } catch (error) {
-                console.error('Error parsing stored stations:', error);
-                // If JSON parse fails, load defaults
+            } else {
+                // Return default preset stations if no saved stations exist
                 const defaultStations = this.getDefaultStations();
+                console.log('No saved stations found, loading default presets:', defaultStations);
+                // Save the default stations to localStorage so they persist
                 this.saveStationsToStorage(defaultStations);
                 return defaultStations;
             }
-        } else {
-            // Return default preset stations if no saved stations exist
-            const defaultStations = this.getDefaultStations();
-            console.log('No saved stations found, loading default presets:', defaultStations);
-            // Save the default stations to localStorage so they persist
-            this.saveStationsToStorage(defaultStations);
-            return defaultStations;
+        } catch (e) {
+            console.error('Critical error in loadStations:', e);
+            // Last resort fallback
+            return this.getDefaultStations();
         }
     }
 
@@ -296,7 +307,8 @@ class RadioApp {
     }
     
     showVersionDetails() {
-        const detailedInfo = `🎵 Rrradio v${this.version.number} "${this.version.codename}" - Built with ❤️ for radio lovers!`;
+        const betaText = this.version.isBeta ? ' Beta' : '';
+        const detailedInfo = `🎵 Rrradio v${this.version.number}${betaText} "${this.version.codename}" - Built with ❤️ for radio lovers!`;
         this.showNotification(detailedInfo, 5000); // Show for 5 seconds
         
         // Also log detailed info to console
@@ -366,6 +378,7 @@ class RadioApp {
         this.isPlaying = false;
         this.updatePlayerStatus('Ended');
         this.updatePlayPauseButton();
+        this.clearPlayingStations();
     }
 
     audioErrorHandler = (e) => {
@@ -375,6 +388,7 @@ class RadioApp {
             this.updatePlayerStatus('Error loading stream');
             this.isPlaying = false;
             this.updatePlayPauseButton();
+            this.clearPlayingStations();
         }
     }
 
@@ -822,11 +836,17 @@ class RadioApp {
             return;
         }
 
-        container.style.display = 'grid';
+        // Change display from grid to flex for draggable layout
+        container.style.display = 'flex';
+        container.style.flexWrap = 'wrap';
+        container.style.alignItems = 'flex-start';
         noStationsMessage.style.display = 'none';
 
         container.innerHTML = this.stations.map(station => `
-            <div class="station-card" data-station-id="${station.id}">
+            <div class="station-card" data-station-id="${station.id}" draggable="true">
+                <div class="drag-handle" title="Drag to reorder">
+                    <i class="fas fa-grip-lines"></i>
+                </div>
                 <div class="station-image-container">
                     ${station.image ? 
                         `<img src="${station.image}" alt="${station.name}" class="station-image" onerror="app.handleImageError(this)">
@@ -862,7 +882,7 @@ class RadioApp {
         // Add click listeners to station cards
         container.querySelectorAll('.station-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.station-actions')) {
+                if (!e.target.closest('.station-actions') && !e.target.closest('.drag-handle')) {
                     const stationId = card.dataset.stationId;
                     const station = this.stations.find(s => s.id === stationId);
                     if (station) {
@@ -870,6 +890,81 @@ class RadioApp {
                     }
                 }
             });
+            
+            // Add drag-and-drop event listeners
+            this.setupDragHandlers(card);
+        });
+    }
+
+    setupDragHandlers(card) {
+        card.addEventListener('dragstart', (e) => {
+            // Set the data being dragged and add a dragging class
+            e.dataTransfer.setData('text/plain', card.dataset.stationId);
+            card.classList.add('dragging');
+            
+            // Set drag image to the card itself
+            // Slight delay to allow the dragging class to take effect
+            setTimeout(() => {
+                e.dataTransfer.setDragImage(card, 20, 20);
+            }, 0);
+        });
+
+        card.addEventListener('dragend', () => {
+            // Remove the dragging class
+            card.classList.remove('dragging');
+            
+            // Remove drag-over class from all cards
+            document.querySelectorAll('.station-card').forEach(c => {
+                c.classList.remove('drag-over');
+            });
+        });
+
+        card.addEventListener('dragover', (e) => {
+            // Allow dropping
+            e.preventDefault();
+        });
+
+        card.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            // Style the potential drop target
+            if (!card.classList.contains('dragging')) {
+                card.classList.add('drag-over');
+            }
+        });
+
+        card.addEventListener('dragleave', () => {
+            // Remove drop target styling
+            card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.classList.remove('drag-over');
+            
+            // Get the dragged station ID
+            const draggedStationId = e.dataTransfer.getData('text/plain');
+            const targetStationId = card.dataset.stationId;
+            
+            if (draggedStationId === targetStationId) return;
+            
+            // Find indices of both stations
+            const draggedIndex = this.stations.findIndex(s => s.id === draggedStationId);
+            const targetIndex = this.stations.findIndex(s => s.id === targetStationId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // Reorder the stations array
+            const [draggedStation] = this.stations.splice(draggedIndex, 1);
+            this.stations.splice(targetIndex, 0, draggedStation);
+            
+            // Save the reordered stations to storage
+            this.saveStations();
+            
+            // Re-render all the stations with the new order
+            this.renderStations();
+            
+            // Show a notification of the reordering
+            this.showNotification('Station order updated');
         });
     }
 
@@ -972,12 +1067,33 @@ class RadioApp {
     }
 
     showSettingsModal() {
-        this.populateSettingsModal();
-        document.getElementById('settingsModal').classList.add('show');
+        console.log('Showing settings modal');
+        try {
+            this.populateSettingsModal();
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.classList.add('show');
+                console.log('Settings modal displayed');
+            } else {
+                console.error('Settings modal element not found');
+            }
+        } catch (e) {
+            console.error('Error showing settings modal:', e);
+        }
     }
 
     hideSettingsModal() {
-        document.getElementById('settingsModal').classList.remove('show');
+        console.log('Hiding settings modal');
+        try {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.classList.remove('show');
+            } else {
+                console.error('Settings modal element not found');
+            }
+        } catch (e) {
+            console.error('Error hiding settings modal:', e);
+        }
     }
 
     // Settings Management
@@ -1049,13 +1165,16 @@ class RadioApp {
         const appVersionEl = document.getElementById('appVersion');
         const buildNumberEl = document.getElementById('buildNumber');
         const buildDateEl = document.getElementById('buildDate');
-        
-        if (appVersionEl) appVersionEl.textContent = this.version.number;
+
+        if (appVersionEl) {
+            appVersionEl.textContent = this.version.number + (this.version.isBeta ? ' (beta)' : '');
+        }
         if (buildNumberEl) buildNumberEl.textContent = this.version.build;
         if (buildDateEl) buildDateEl.textContent = this.version.date;
         
         // Add version info to console for debugging
-        console.log(`Rrradio v${this.version.number} (${this.version.codename}) - Build ${this.version.build}`);
+        const betaFlag = this.version.isBeta ? ' beta' : '';
+        console.log(`Rrradio v${this.version.number}${betaFlag} (${this.version.codename}) - Build ${this.version.build}`);
     }
     
     generateBuildNumber() {
@@ -1074,11 +1193,143 @@ class RadioApp {
     formatBuildDate() {
         // Format the current date for display
         const now = new Date();
-        return now.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
+        return now.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
             day: 'numeric'
         });
+    }
+
+    detectBetaEnvironment() {
+        const params = new URLSearchParams(window.location.search);
+        const hasBetaParam = params.has('beta');
+        const hostHasBeta = window.location.hostname.toLowerCase().includes('beta');
+        
+        // Get beta status from localStorage if set by the server
+        const storedBetaStatus = localStorage.getItem('rrradio-is-beta') === 'true';
+        
+        // Check if we're in a development environment
+        const isDev = window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1' ||
+                     window.location.hostname.includes('.local');
+                     
+        // On first load in dev environment, set beta flag in localStorage
+        if (isDev && localStorage.getItem('rrradio-is-beta') === null) {
+            // This could be enhanced to actually check the Git branch via a server endpoint
+            localStorage.setItem('rrradio-is-beta', 'true');
+        }
+        
+        const isBeta = hasBetaParam || hostHasBeta || storedBetaStatus;
+        this.version.isBeta = isBeta;
+
+        if (isBeta) {
+            // Show beta indicator
+            const indicator = document.getElementById('betaIndicator');
+            if (indicator) {
+                indicator.style.display = 'inline-block';
+            }
+            
+            // Switch to beta icons
+            this.updateIconsForBeta();
+            
+            // Show beta info notification if this is their first visit to beta
+            if (!localStorage.getItem('rrradio-beta-info-shown')) {
+                this.showBetaInfo();
+                localStorage.setItem('rrradio-beta-info-shown', 'true');
+            }
+        }
+    }
+    
+    updateIconsForBeta() {
+        console.log('Switching to beta icons');
+        
+        // Update favicon
+        const faviconLink = document.querySelector('link[rel="icon"][type="image/x-icon"]');
+        if (faviconLink) {
+            faviconLink.href = 'img/favicon-beta.ico';
+        }
+        
+        // Update all PNG icons (16px, 32px, 192px, 512px)
+        const pngIcons = document.querySelectorAll('link[rel="icon"][type="image/png"]');
+        pngIcons.forEach(icon => {
+            const size = icon.getAttribute('sizes');
+            if (size) {
+                const newIconPath = icon.href.replace(/icon-(\d+)\.png/, 'icon-$1-beta.png');
+                icon.href = newIconPath;
+            }
+        });
+        
+        // Update Apple touch icons
+        const appleIcons = document.querySelectorAll('link[rel="apple-touch-icon"]');
+        appleIcons.forEach(icon => {
+            if (icon.href.includes('icon-apple-touch-icon')) {
+                icon.href = 'img/icon-apple-touch-icon-beta.png';
+            } else if (icon.href.includes('256x256')) {
+                icon.href = 'img/256x256-beta.png';
+            } else {
+                const newIconPath = icon.href.replace(/icon-(\d+)\.png/, 'icon-$1-beta.png');
+                icon.href = newIconPath;
+            }
+        });
+        
+        // Update Open Graph and Twitter image references
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage) {
+            ogImage.content = 'img/icon-512-beta.png';
+        }
+        
+        const twitterImage = document.querySelector('meta[name="twitter:image"]');
+        if (twitterImage) {
+            twitterImage.content = 'img/icon-512-beta.png';
+        }
+    }
+    
+    showBetaInfo() {
+        // Create a notification for beta info
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
+            max-width: 300px;
+        `;
+        notification.innerHTML = `
+            <strong><i class="fas fa-flask"></i> Welcome to Rrradio Beta!</strong><br>
+            <small>You're using a beta version with experimental features. 
+            Notice the beta icons and indicator showing you're on the cutting edge.
+            Please report any issues you encounter.</small>
+            <div style="margin-top: 10px; text-align: right;">
+                <button id="closeBetaNotification" style="
+                    background: rgba(255,255,255,0.2); 
+                    border: none; 
+                    color: white; 
+                    padding: 5px 10px; 
+                    border-radius: 4px; 
+                    cursor: pointer;
+                ">OK, Got it</button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Add event listener to close button
+        document.getElementById('closeBetaNotification').addEventListener('click', () => {
+            document.body.removeChild(notification);
+        });
+        
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 10000);
     }
     
     // Restore playback state after update
@@ -1132,7 +1383,9 @@ class RadioApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }    showNotification(message, duration = 3000) {
+    }
+    
+    showNotification(message, duration = 3000) {
         // Create a simple notification
         const notification = document.createElement('div');
         notification.style.cssText = `
@@ -1196,90 +1449,3 @@ document.addEventListener('click', (event) => {
         });
     }
 });
-
-// Service Worker registration for offline support and updates
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-                // Store registration for later use (e.g. sending messages)
-                window.swRegistration = registration;
-                
-                // Check for updates every time the app loads
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    console.log('New service worker found, preparing update...');
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                // New update available
-                                console.log('New app version available! Refreshing...');
-                                showUpdateNotification();
-                            }
-                        }
-                    });
-                });
-                
-                // Handle messages from service worker
-                navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
-                        showUpdateNotification();
-                    }
-                });
-                
-                // Check for updates periodically
-                setInterval(() => {
-                    registration.update();
-                }, 60000); // Check every minute
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
-
-// Show update notification to user
-function showUpdateNotification() {
-    // Create a simple notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 5px;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        font-family: Arial, sans-serif;
-        cursor: pointer;
-    `;
-    notification.innerHTML = `
-        <strong>Update Available!</strong><br>
-        <small>Click to reload when ready</small>
-    `;
-    
-    // Store the current playing state and station before reload
-    notification.addEventListener('click', () => {
-        // Save current playing state and station ID in sessionStorage
-        const app = window.radioApp;
-        if (app && app.isPlaying && app.currentStation) {
-            sessionStorage.setItem('rrradio-playing-before-update', 'true');
-            sessionStorage.setItem('rrradio-last-station-id', app.currentStation.id);
-        }
-        // Activate waiting service worker so the latest version loads
-        if (window.swRegistration && window.swRegistration.waiting) {
-            window.swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-        window.location.reload();
-    });
-    
-    document.body.appendChild(notification);
-    
-    // Previously the app would auto refresh after a short delay which
-    // interrupted playback. We now show the notification and let the
-    // user decide when to reload.
-}
