@@ -845,7 +845,7 @@ class RadioApp {
         container.innerHTML = this.stations.map(station => `
             <div class="station-card" data-station-id="${station.id}" draggable="true">
                 <div class="drag-handle" title="Drag to reorder">
-                    <i class="fas fa-grip-lines"></i>
+                    <i class="fas fa-grip-lines fa-lg"></i>
                 </div>
                 <div class="station-image-container">
                     ${station.image ? 
@@ -925,17 +925,17 @@ class RadioApp {
                 dragImage.style.opacity = '0';
                 document.body.appendChild(dragImage);
                 
-                // Use this custom element as drag image
-                e.dataTransfer.setDragImage(dragImage, 20, 20);
+                // Use this custom element as drag image - position it at center top for better visual
+                e.dataTransfer.setDragImage(dragImage, dragImage.offsetWidth / 2, 30);
                 
                 // Clean up after a short delay
                 setTimeout(() => {
                     document.body.removeChild(dragImage);
                 }, 100);
             } else {
-                // For regular cards, use the standard approach
+                // For regular cards, use the standard approach with improved positioning
                 setTimeout(() => {
-                    e.dataTransfer.setDragImage(card, 20, 20);
+                    e.dataTransfer.setDragImage(card, card.offsetWidth / 2, 30);
                 }, 0);
             }
         });
