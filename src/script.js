@@ -894,6 +894,11 @@ class RadioApp {
             // Add drag-and-drop event listeners
             this.setupDragHandlers(card);
         });
+        
+        // Restore the playing indicator if a station is currently playing
+        if (this.currentStation && this.isPlaying) {
+            this.markStationAsPlaying();
+        }
     }
 
     setupDragHandlers(card) {
@@ -962,6 +967,11 @@ class RadioApp {
             
             // Re-render all the stations with the new order
             this.renderStations();
+            
+            // Restore the playing indicator if a station is currently playing
+            if (this.currentStation && this.isPlaying) {
+                this.markStationAsPlaying();
+            }
             
             // Show a notification of the reordering
             this.showNotification('Station order updated');
