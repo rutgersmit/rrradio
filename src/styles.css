@@ -1191,6 +1191,19 @@ body {
     border: 2px dashed var(--accent-color);
 }
 
+/* Custom drag image for playing stations */
+.drag-image.playing-drag {
+    background: linear-gradient(to bottom right, var(--card-bg), rgba(var(--accent-color-rgb), 0.05));
+    border: 3px solid var(--accent-color);
+    box-shadow: 0 8px 20px rgba(var(--accent-color-rgb), 0.2);
+}
+
+/* This class won't have the ::after pseudo-element that causes visual glitches when dragging */
+.drag-image.playing-drag .station-info h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {

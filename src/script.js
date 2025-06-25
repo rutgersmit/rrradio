@@ -907,11 +907,37 @@ class RadioApp {
             e.dataTransfer.setData('text/plain', card.dataset.stationId);
             card.classList.add('dragging');
             
-            // Set drag image to the card itself
-            // Slight delay to allow the dragging class to take effect
-            setTimeout(() => {
-                e.dataTransfer.setDragImage(card, 20, 20);
-            }, 0);
+            // Create a custom drag image for better visual feedback, especially for playing stations
+            const isPlaying = card.classList.contains('playing');
+            if (isPlaying) {
+                // For playing stations, create a cleaner drag image without the pseudo elements
+                const dragImage = card.cloneNode(true);
+                dragImage.classList.add('drag-image');
+                dragImage.classList.add('dragging');
+                if (isPlaying) {
+                    dragImage.classList.add('playing-drag');
+                    dragImage.classList.remove('playing'); // Remove regular playing class to avoid pseudo-elements
+                }
+                
+                // Temporarily add to document to compute styles, but make it invisible
+                dragImage.style.position = 'absolute';
+                dragImage.style.top = '-9999px';
+                dragImage.style.opacity = '0';
+                document.body.appendChild(dragImage);
+                
+                // Use this custom element as drag image
+                e.dataTransfer.setDragImage(dragImage, 20, 20);
+                
+                // Clean up after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(dragImage);
+                }, 100);
+            } else {
+                // For regular cards, use the standard approach
+                setTimeout(() => {
+                    e.dataTransfer.setDragImage(card, 20, 20);
+                }, 0);
+            }
         });
 
         card.addEventListener('dragend', () => {
