@@ -318,7 +318,8 @@ body {
 /* Main content */
 .main-content {
     flex: 1;
-    margin-bottom: 120px;
+    margin-bottom: 140px; /* Increased bottom margin for better spacing with the player */
+    padding-bottom: 20px; /* Additional padding at the bottom */
 }
 
 /* No stations message */
@@ -355,7 +356,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    padding: 20px 0;
+    padding: 20px 0 30px 0; /* Increased bottom padding */
     overflow: visible;
 }
 
