@@ -322,6 +322,13 @@ body {
     padding-bottom: 20px; /* Additional padding at the bottom */
 }
 
+.site-footer {
+    margin: 0 auto 140px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
 /* No stations message */
 .no-stations {
     text-align: center;
