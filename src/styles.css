@@ -325,8 +325,10 @@ body {
 .site-footer {
     margin: 0 auto 140px;
     text-align: center;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 /* No stations message */
