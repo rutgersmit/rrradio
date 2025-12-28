@@ -1,3 +1,8 @@
+const BUILD_INFO = {
+    hash: '29644aa',
+    date: 'December 28, 2025'
+};
+
 class RadioApp {
     constructor() {
         console.log('Initializing Rrradio...');
@@ -15,9 +20,9 @@ class RadioApp {
         
         // Version information
         this.version = {
-            number: '1.3.3',
-            build: this.generateBuildNumber(),
-            date: this.formatBuildDate(),
+            number: '1.3.4',
+            build: BUILD_INFO.hash || this.generateBuildNumber(),
+            date: BUILD_INFO.date || this.formatBuildDate(),
             codename: 'Frequency Shift',
             isBeta: false
         };
@@ -1201,12 +1206,14 @@ class RadioApp {
         const appVersionEl = document.getElementById('appVersion');
         const buildNumberEl = document.getElementById('buildNumber');
         const buildDateEl = document.getElementById('buildDate');
+        const branchHashEl = document.getElementById('branchHash');
 
         if (appVersionEl) {
             appVersionEl.textContent = this.version.number + (this.version.isBeta ? ' (beta)' : '');
         }
         if (buildNumberEl) buildNumberEl.textContent = this.version.build;
         if (buildDateEl) buildDateEl.textContent = this.version.date;
+        if (branchHashEl) branchHashEl.textContent = this.version.build;
         
         // Add version info to console for debugging
         const betaFlag = this.version.isBeta ? ' beta' : '';
