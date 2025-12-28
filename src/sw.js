@@ -53,6 +53,11 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    // Let audio streams bypass the service worker to avoid stutter from cached/opaque responses
+    if (event.request.destination === 'audio' || event.request.headers.has('range')) {
+        return;
+    }
+
     // For app shell resources, use network-first strategy to get updates
     if (urlsToCache.some(url => event.request.url.includes(url.replace('/', '')))) {
         event.respondWith(
